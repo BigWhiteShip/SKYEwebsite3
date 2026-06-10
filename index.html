@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYE Real Estate Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --teal: #5CC8C8;
+            --teal-dark: #4AB0B0;
+            --dark: #1a1a2e;
+            --charcoal: #2d2d3f;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #4f514f;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(92, 200, 200, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(92, 200, 200, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-logo {
+            width: min(750px, 90vw);
+            margin-bottom: 2rem;
+            animation: fadeInDown 1s ease-out;
+            border-radius: 8px;
+            padding: 2rem 2.5rem;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .hero-tagline {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 1rem 3rem;
+            border: 2px solid var(--teal);
+            color: var(--teal);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .hero-cta:hover {
+            background: var(--teal);
+            color: var(--dark);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+            stroke: var(--teal);
+            opacity: 0.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 3rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-logo {
+            height: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        nav.scrolled .nav-logo {
+            opacity: 1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--teal);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-toggle span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--white);
+            margin: 6px 0;
+            transition: all 0.3s ease;
+        }
+
+        /* About Section */
+        .about {
+            padding: 8rem 2rem;
+            background: var(--white);
+            text-align: center;
+        }
+
+        .section-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 400;
+            color: var(--dark);
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 2px;
+            background: var(--teal);
+            margin: 0 auto 2rem;
+        }
+
+        .about-text {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: var(--gray);
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 8rem 2rem;
+            background: var(--light);
+        }
+
+        .services .section-container {
+            max-width: 1100px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            padding: 3rem 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border-bottom-color: var(--teal);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1.5rem;
+            stroke: var(--teal);
+        }
+
+        .service-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .service-card p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--gray);
+            font-weight: 300;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 8rem 2rem;
+            background: var(--dark);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .contact .section-label {
+            color: var(--teal);
+        }
+
+        .contact .section-title {
+            color: var(--white);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .contact-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .contact-detail svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--teal);
+            flex-shrink: 0;
+        }
+
+        .contact-detail a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-detail a:hover {
+            color: var(--teal);
+        }
+
+        .contact-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .contact-cta {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: var(--teal);
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .contact-email {
+            background: transparent;
+            border: 2px solid var(--teal);
+            color: var(--teal);
+        }
+
+        .contact-email:hover {
+            background: var(--teal);
+            color: var(--dark);
+        }
+
+        .contact-cta:hover {
+            background: var(--teal-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(92, 200, 200, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 1.5rem 2rem;
+            background: #4f514f;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-inner {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 1.5rem;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        .footer-center {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            justify-content: flex-start;
+        }
+
+        .footer-license {
+            text-align: right;
+            line-height: 1.6;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+        }
+
+        .footer-license strong {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.75rem;
+        }
+
+        .footer-logo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        a.footer-logo-item:hover {
+            opacity: 0.7;
+        }
+
+        .footer-logo-item svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .footer-logo-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        .footer-divider {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+            .footer-inner {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 1rem;
+            }
+            .footer-left,
+            .footer-right {
+                justify-content: center;
+            }
+            .footer-license {
+                text-align: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            nav.scrolled {
+                padding: 0.75rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 46, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .hero-logo {
+                width: min(350px, 85vw);
+            }
+
+            .about, .services, .contact {
+                padding: 5rem 1.5rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <img src="images/logo.png" alt="SKYE Real Estate Group" class="nav-logo">
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <img src="images/logo.png" alt="SKYE Real Estate Group" class="hero-logo">
+        <p class="hero-tagline">Full Service Real Estate Solutions</p>
+        <a href="#contact" class="hero-cta">Get In Touch</a>
+        <div class="scroll-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="about" id="about">
+        <div class="section-container fade-in">
+            <p class="section-label">About Us</p>
+            <h2 class="section-title">Your Trusted Partner in Real Estate</h2>
+            <div class="section-divider"></div>
+            <p class="about-text">
+                At SKYE Real Estate Group, we believe that finding the perfect property should be an inspiring journey, not a stressful one. With deep local market expertise and a commitment to personalized service, we guide our clients through every step of buying, selling, and investing in real estate. Our approach combines market insight with genuine care for your goals.
+            </p>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="services" id="services">
+        <div class="section-container">
+            <div class="fade-in">
+                <p class="section-label">What We Do</p>
+                <h2 class="section-title">Our Services</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="services-grid">
+                <div class="service-card fade-in">
+                    <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <h3>Residential Sales</h3>
+                    <p>Whether you're buying your first home or selling a cherished property, we provide expert guidance to help you achieve the best outcome, specific to your goals.</p>
+                </div>
+                <div class="service-card fade-in">
+                    <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="11" y1="8" x2="11" y2="14"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                    <h3>Property Search</h3>
+                    <p>We can set you up with a curated selection of listings that will help you find properties that match your lifestyle, budget, and vision for the future.</p>
+                </div>
+                <div class="service-card fade-in">
+                    <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                    <h3>Market Analysis</h3>
+                    <p>Make informed decisions with our comprehensive market insights, pricing strategies, and investment analysis tailored to your goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact" id="contact">
+        <div class="section-container fade-in">
+            <p class="section-label">Get In Touch</p>
+            <h2 class="section-title">Let's Start a Conversation</h2>
+            <div class="section-divider"></div>
+            <div class="contact-info">
+                <p class="contact-name">Amber Krisky</p>
+                <div class="contact-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                    </svg>
+                    <a href="tel:+15032016197">(503) 201-6197</a>
+                </div>
+            </div>
+            <div class="contact-buttons">
+                <a href="tel:+15032016197" class="contact-cta">Call Now</a>
+                <a href="mailto:amberkrisky@gmail.com?subject=SKYE%20real%20estate%20inquiry" class="contact-cta contact-email" target="_blank" rel="noopener noreferrer">Email Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <!-- Left column: RMLS logo -->
+            <div class="footer-left">
+                <a href="https://rmlscentral.com/" target="_blank" rel="noopener noreferrer" class="footer-logo-item">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="44" height="44" rx="4" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+                        <path d="M10 14h8c3 0 5 1.5 5 4.5s-2 4.5-5 4.5h-4v8h-4V14zm4 6h3.5c1.2 0 2-.6 2-1.8s-.8-1.8-2-1.8H14v3.6z" fill="rgba(255,255,255,0.7)"/>
+                        <text x="24" y="36" font-family="Montserrat, sans-serif" font-size="6" font-weight="600" fill="rgba(255,255,255,0.7)" text-anchor="middle">RMLS</text>
+                    </svg>
+                    <span class="footer-logo-label">Regional MLS</span>
+                </a>
+            </div>
+
+            <!-- Center column: Copyright -->
+            <div class="footer-center">
+                <p style="padding-left: 150px;"></p>
+                &copy; 2026 SKYE Real Estate Group. All rights reserved.
+            </div>
+
+            <!-- Right column: License Info + Equal Housing -->
+            <div class="footer-right">
+                 <a href="https://www.usa.gov/agencies/office-of-fair-housing-and-equal-opportunity" target="_blank" rel="noopener noreferrer" class="footer-logo-item">
+                    <svg viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 2L2 20h6v24h32V20h6L24 2z" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" fill="none"/>
+                        <text x="24" y="33" font-family="Montserrat, sans-serif" font-size="18" font-weight="700" fill="rgba(255,255,255,0.7)" text-anchor="middle">=</text>
+                        <text x="24" y="50" font-family="Montserrat, sans-serif" font-size="3.5" font-weight="600" fill="rgba(255,255,255,0.6)" text-anchor="middle">EQUAL HOUSING</text>
+                        <text x="24" y="54.5" font-family="Montserrat, sans-serif" font-size="3.5" font-weight="600" fill="rgba(255,255,255,0.6)" text-anchor="middle">OPPORTUNITY</text>
+                    </svg>
+                </a>
+                    <div class="footer-license">
+                        <p style="padding-left: 150px;"><strong>Skye Group Real Estate</strong><br>
+                    License # 201264050<br>
+                    </p>
+        
+                </div>
+               
+                
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('active'));
+        });
+
+        // Scroll fade-in
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
