@@ -45,6 +45,7 @@
             background: #4f514f;
             text-align: center;
             padding: 2rem;
+            overflow: hidden;
         }
 
         .hero::before {
@@ -54,13 +55,22 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(92, 200, 200, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(92, 200, 200, 0.05) 0%, transparent 50%);
+            background: url('images/hero-background.png') center / cover no-repeat;
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(79, 81, 79, 0.25);
             pointer-events: none;
         }
 
         .hero-logo {
+            position: relative;
+            z-index: 1;
             width: min(750px, 90vw);
             margin-bottom: 2rem;
             animation: fadeInDown 1s ease-out;
@@ -70,6 +80,8 @@
         }
 
         .hero-tagline {
+            position: relative;
+            z-index: 1;
             font-family: 'Montserrat', sans-serif;
             font-weight: 300;
             font-size: clamp(1rem, 2.5vw, 1.4rem);
@@ -81,6 +93,8 @@
         }
 
         .hero-cta {
+            position: relative;
+            z-index: 1;
             display: inline-block;
             padding: 1rem 3rem;
             border: 2px solid var(--teal);
