@@ -131,9 +131,25 @@
         const form = document.getElementById('listingForm');
         const message = document.getElementById('message');
         message.innerHTML = AdminApp.setupWarning();
+        let isLoadingListing = true;
+
+        async function loadExistingListing() {
+            try {
+                const listing = await AdminApp.loadListingForEdit(form);
+                if (listing) {
+                    document.querySelector('.admin-header h1').textContent = 'Edit Listing';
+                    message.innerHTML = `<div class="message">Editing: ${listing.title}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            } finally {
+                isLoadingListing = false;
+            }
+        }
 
         let autosaveTimer;
         form.addEventListener('input', () => {
+            if (isLoadingListing) return;
             clearTimeout(autosaveTimer);
             autosaveTimer = setTimeout(async () => {
                 if (!SkyeListings.isConfigured || !form.reportValidity()) return;
@@ -148,6 +164,8 @@
                 }
             }, 1800);
         });
+
+        loadExistingListing();
 
         document.getElementById('photos').addEventListener('change', event => {
             const files = Array.from(event.target.files).slice(0, 6);

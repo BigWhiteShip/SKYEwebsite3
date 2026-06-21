@@ -116,6 +116,64 @@ const AdminApp = (() => {
         return Math.round(Number(normalized));
     }
 
+    function formatInputPrice(value) {
+        if (!value && value !== 0) return '';
+        return new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0
+        }).format(value);
+    }
+
+    async function loadListingForEdit(form) {
+        if (!client) return null;
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id) return null;
+
+        await SkyeListings.requireSession();
+        const { data, error } = await client
+            .from('listings')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+
+        const fields = [
+            'title',
+            'description',
+            'address',
+            'city',
+            'state',
+            'zip_code',
+            'mls_number',
+            'bedrooms',
+            'bathrooms',
+            'interior_sq_ft',
+            'lot_size',
+            'zillow_url',
+            'agent_name',
+            'agent_email',
+            'agent_office_phone',
+            'agent_mobile_phone'
+        ];
+
+        fields.forEach(name => {
+            if (form.elements[name] && data[name] !== null && data[name] !== undefined) {
+                form.elements[name].value = data[name];
+            }
+        });
+
+        if (form.elements.price) {
+            form.elements.price.value = formatInputPrice(data.price);
+        }
+
+        if (form.elements.hide_address) {
+            form.elements.hide_address.checked = Boolean(data.hide_address);
+        }
+
+        return data;
+    }
+
     async function saveListing(form, status = 'draft') {
         if (!client) throw new Error('Supabase is not configured.');
         const session = await SkyeListings.requireSession();
@@ -166,5 +224,15 @@ const AdminApp = (() => {
         if (error) throw error;
     }
 
-    return { setupWarning, login, logout, resetPassword, setPassword, loadDashboard, saveListing, updateStatus };
+    return {
+        setupWarning,
+        login,
+        logout,
+        resetPassword,
+        setPassword,
+        loadDashboard,
+        loadListingForEdit,
+        saveListing,
+        updateStatus
+    };
 })();
