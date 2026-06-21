@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sold Listings | SKYE Real Estate Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --teal: #5CC8C8; --teal-dark: #4AB0B0; --dark: #1a1a2e; --light: #f8f9fa; --gray: #6c757d; --white: #fff; --brand-bg: #4f514f; }
+        body { font-family: 'Montserrat', sans-serif; color: var(--dark); background: var(--light); overflow-x: hidden; }
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; background: rgba(26,26,46,.95); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,.25); }
+        .nav-logo { height: 50px; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { color: var(--white); text-decoration: none; font-size: .8rem; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; transition: color .3s ease; }
+        .nav-links a:hover, .nav-links a.active { color: var(--teal); }
+        .listings-hero { padding: 10rem 2rem 6rem; background: var(--brand-bg); color: var(--white); text-align: center; }
+        .hero-logo { width: min(460px, 86vw); margin-bottom: 2rem; border-radius: 8px; padding: 1.5rem 2rem; background: rgba(255,255,255,.95); }
+        .section-label { font-size: .75rem; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: var(--teal); margin-bottom: 1.5rem; }
+        .page-title, .section-title { font-family: 'Playfair Display', serif; font-weight: 400; line-height: 1.2; }
+        .page-title { font-size: clamp(2.4rem, 6vw, 4.5rem); margin-bottom: 1.25rem; }
+        .page-intro { max-width: 680px; margin: 0 auto; color: rgba(255,255,255,.82); font-size: 1.05rem; line-height: 1.8; font-weight: 300; }
+        .properties { padding: 7rem 2rem; background: var(--light); }
+        .section-container { max-width: 1100px; margin: 0 auto; }
+        .section-heading { text-align: center; margin-bottom: 4rem; }
+        .section-title { font-size: clamp(2rem, 4vw, 3rem); color: var(--dark); margin-bottom: 2rem; }
+        .section-divider { width: 60px; height: 2px; background: var(--teal); margin: 0 auto; }
+        .listing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+        .listing-card, .listing-panel { background: var(--white); box-shadow: 0 15px 40px rgba(0,0,0,.06); border-bottom: 3px solid transparent; overflow: hidden; }
+        .listing-card:hover { transform: translateY(-4px); border-bottom-color: var(--teal); }
+        .listing-photo { display: block; aspect-ratio: 4 / 3; background: var(--brand-bg); overflow: hidden; }
+        .listing-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .listing-photo-placeholder { height: 100%; display: grid; place-items: center; color: rgba(255,255,255,.65); font-family: 'Playfair Display', serif; font-size: 2rem; letter-spacing: .2em; }
+        .listing-card-body { padding: 2rem; }
+        .listing-price { color: var(--teal-dark); font-size: 1.25rem; font-weight: 600; margin-bottom: .75rem; }
+        .listing-card h3 { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 500; margin-bottom: .75rem; }
+        .listing-address, .listing-mls, .listing-panel p { color: var(--gray); line-height: 1.6; font-size: .9rem; }
+        .listing-stats { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.25rem 0; color: var(--dark); font-size: .82rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+        .listing-card-link, .listing-cta { display: inline-block; margin-top: 1.5rem; color: var(--teal-dark); font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; }
+        .listing-panel { padding: 4rem 3rem; text-align: center; border-bottom-color: var(--teal); }
+        .listing-panel h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 1rem; }
+        .pagination { display: flex; justify-content: center; gap: .75rem; margin-top: 3rem; }
+        .page-link { display: grid; place-items: center; width: 42px; height: 42px; color: var(--dark); text-decoration: none; background: var(--white); border: 1px solid rgba(0,0,0,.08); }
+        .page-link.active { background: var(--teal); border-color: var(--teal); }
+        footer { padding: 1.5rem 2rem; background: var(--brand-bg); color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        @media (max-width: 768px) { nav { padding: 1rem 1.5rem; } .nav-links { gap: 1rem; } .listing-grid { grid-template-columns: 1fr; } .listing-panel { padding: 3rem 1.5rem; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="images/logo.png" alt="SKYE Real Estate Group" class="nav-logo"></a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="current-listings.html#properties">Current Listings</a></li>
+            <li><a href="#properties" class="active">Sold Listings</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header class="listings-hero">
+        <img src="images/logo.png" alt="SKYE Real Estate Group" class="hero-logo">
+        <p class="section-label">Sold Listings</p>
+        <h1 class="page-title">Recently Sold Properties</h1>
+        <p class="page-intro">A record of sold SKYE listings showing original list price and listing details.</p>
+    </header>
+
+    <section class="properties" id="properties">
+        <div class="section-container">
+            <div class="section-heading">
+                <p class="section-label">Properties</p>
+                <h2 class="section-title">Sold Listings</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="listing-grid" id="listingGrid"></div>
+            <div class="listing-panel" id="emptyListings">
+                <h2>No Sold Listings Yet</h2>
+                <p>Sold listings will appear here after the principal broker marks properties as sold.</p>
+            </div>
+            <div class="pagination" id="listingPagination"></div>
+        </div>
+    </section>
+
+    <footer>&copy; 2026 SKYE Real Estate Group. All rights reserved.</footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/listings-api.js"></script>
+    <script src="js/public-listings.js"></script>
+    <script>loadListingGrid('sold');</script>
+</body>
+</html>

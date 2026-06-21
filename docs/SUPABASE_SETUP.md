@@ -1,0 +1,66 @@
+# SKYE Supabase Setup
+
+This site stays hosted on GitHub Pages. Supabase provides the database, login, photo storage, and broker approval workflow.
+
+## 1. Create The Project
+
+1. Go to https://supabase.com.
+2. Create an account.
+3. Create a new project named `skye-real-estate`.
+4. Save the project password somewhere secure.
+5. Open Project Settings > API.
+6. Copy the Project URL and anon public key.
+7. Paste them into `js/supabase-config.js`.
+
+## 2. Create The Database
+
+1. In Supabase, open SQL Editor.
+2. Paste the contents of `supabase/schema.sql`.
+3. Run the script.
+
+## 3. Create Storage Bucket
+
+1. Open Storage.
+2. Create a bucket named `listing-photos`.
+3. Keep it private for admin uploads.
+4. Public listing images can be exposed through signed/public URLs depending on final deployment preference.
+
+## 4. Authentication Settings
+
+Use email/password login first.
+
+Recommended settings:
+
+- Agents use `name@skyegroup.realestate`.
+- Public signups disabled.
+- Admin/principal broker creates agent accounts.
+- Password reset enabled.
+- Redirect URLs include the GitHub Pages site URL, local testing URL, and `admin/set-password.html` for invite/password setup links.
+
+Passkeys can be added later. Supabase passkeys are available, but currently marked experimental in Supabase documentation, so the first production version should rely on email/password.
+
+## 5. Principal Broker
+
+Create Amber as the first user:
+
+- Email: `Amber.Krisky@skyegroup.realestate`
+- Role: `principal_broker`
+
+After the user exists in Supabase Auth, add a matching row in `public.profiles`.
+
+## 6. Approval Email
+
+Approval emails should come from:
+
+`no-reply@skyegroup.realestate`
+
+The included Edge Function stub at `supabase/functions/submit-listing-for-approval/index.ts` is where the production email integration goes. Resend is a good fit for this.
+
+## 7. Recommended Learning Path
+
+- Supabase Getting Started: https://supabase.com/docs/guides/getting-started
+- Supabase Auth: https://supabase.com/docs/guides/auth
+- Row Level Security: https://supabase.com/docs/guides/database/postgres/row-level-security
+- Supabase Storage: https://supabase.com/docs/guides/storage
+- Supabase Edge Functions: https://supabase.com/docs/guides/functions
+- Supabase Passkeys: https://supabase.com/docs/guides/auth/passkeys

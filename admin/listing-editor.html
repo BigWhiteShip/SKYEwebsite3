@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Listing | SKYE Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <img src="../images/logo.png" alt="SKYE Real Estate Group" class="admin-logo">
+            <nav class="admin-nav">
+                <a href="dashboard.html">Listings</a>
+                <a href="listing-editor.html">Create Listing</a>
+                <button type="button" onclick="AdminApp.logout()">Log Out</button>
+            </nav>
+        </aside>
+        <main class="admin-main">
+            <div class="admin-header">
+                <div>
+                    <p class="eyebrow">Listing Editor</p>
+                    <h1>Create / Edit Listing</h1>
+                </div>
+                <a class="btn secondary" href="dashboard.html">Back to Dashboard</a>
+            </div>
+
+            <div id="message"></div>
+
+            <form id="listingForm" class="panel">
+                <div class="form-grid">
+                    <div class="field full">
+                        <label for="title">Listing Title</label>
+                        <input id="title" name="title" required placeholder="Beautiful Portland Home">
+                    </div>
+                    <div class="field full">
+                        <label for="description">Property Description</label>
+                        <textarea id="description" name="description" required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="address">Address</label>
+                        <input id="address" name="address" required>
+                    </div>
+                    <div class="field">
+                        <label for="city">City</label>
+                        <input id="city" name="city" required>
+                    </div>
+                    <div class="field">
+                        <label for="state">State</label>
+                        <input id="state" name="state" value="OR" required>
+                    </div>
+                    <div class="field">
+                        <label for="zip_code">ZIP Code</label>
+                        <input id="zip_code" name="zip_code" required>
+                    </div>
+                    <div class="field full">
+                        <label><input type="checkbox" name="hide_address"> Hide public address</label>
+                        <p class="help">If selected, the public page will show: Address available upon request.</p>
+                    </div>
+                    <div class="field">
+                        <label for="price">Price</label>
+                        <input id="price" name="price" type="number" min="1" required>
+                    </div>
+                    <div class="field">
+                        <label for="mls_number">MLS Number</label>
+                        <input id="mls_number" name="mls_number" required>
+                    </div>
+                    <div class="field">
+                        <label for="bedrooms">Bedrooms</label>
+                        <input id="bedrooms" name="bedrooms" type="number" min="0" step="0.5" required>
+                    </div>
+                    <div class="field">
+                        <label for="bathrooms">Bathrooms</label>
+                        <input id="bathrooms" name="bathrooms" type="number" min="0" step="0.5" required>
+                    </div>
+                    <div class="field">
+                        <label for="interior_sq_ft">Interior Square Feet</label>
+                        <input id="interior_sq_ft" name="interior_sq_ft" type="number" min="1" required>
+                    </div>
+                    <div class="field">
+                        <label for="lot_size">Lot Size</label>
+                        <input id="lot_size" name="lot_size" required placeholder="0.18 acres">
+                    </div>
+                    <div class="field full">
+                        <label for="zillow_url">Zillow Listing Page URL</label>
+                        <input id="zillow_url" name="zillow_url" type="url" required placeholder="https://www.zillow.com/...">
+                    </div>
+                    <div class="field">
+                        <label for="agent_name">Agent Name</label>
+                        <input id="agent_name" name="agent_name" required>
+                    </div>
+                    <div class="field">
+                        <label for="agent_email">Agent Email</label>
+                        <input id="agent_email" name="agent_email" type="email" required placeholder="name@skyegroup.realestate">
+                    </div>
+                    <div class="field">
+                        <label for="agent_office_phone">Office Phone</label>
+                        <input id="agent_office_phone" name="agent_office_phone" required>
+                    </div>
+                    <div class="field">
+                        <label for="agent_mobile_phone">Mobile Phone</label>
+                        <input id="agent_mobile_phone" name="agent_mobile_phone" required>
+                    </div>
+                    <div class="field full">
+                        <label for="photos">Photos</label>
+                        <input id="photos" name="photos" type="file" accept="image/*" multiple>
+                        <p class="help">Maximum 6 photos. Upload/reorder support is scaffolded here and will connect to the Supabase Storage bucket after the project is created.</p>
+                        <div class="photo-list" id="photoPreview"></div>
+                    </div>
+                    <div class="field full">
+                        <label for="photo_alt_text">Photo Alt Text / Accessibility Notes</label>
+                        <textarea id="photo_alt_text" name="photo_alt_text" placeholder="Describe the listing photos for accessibility and SEO."></textarea>
+                    </div>
+                </div>
+                <div class="button-row" style="margin-top: 2rem;">
+                    <button class="btn muted" type="button" id="saveDraft">Save Draft</button>
+                    <button class="btn secondary" type="button" id="previewListing">Review Page</button>
+                    <button class="btn" type="button" id="submitApproval">Submit to Principal Broker</button>
+                </div>
+                <p class="help">Autosave is wired to save draft changes after editing once Supabase credentials are active.</p>
+            </form>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/listings-api.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        const form = document.getElementById('listingForm');
+        const message = document.getElementById('message');
+        message.innerHTML = AdminApp.setupWarning();
+
+        let autosaveTimer;
+        form.addEventListener('input', () => {
+            clearTimeout(autosaveTimer);
+            autosaveTimer = setTimeout(async () => {
+                if (!SkyeListings.isConfigured || !form.reportValidity()) return;
+                try {
+                    await AdminApp.saveListing(form, 'draft');
+                    message.innerHTML = '<div class="message">Draft autosaved.</div>';
+                } catch (error) {
+                    message.innerHTML = `<div class="message error">${error.message}</div>`;
+                }
+            }, 1800);
+        });
+
+        document.getElementById('photos').addEventListener('change', event => {
+            const files = Array.from(event.target.files).slice(0, 6);
+            if (event.target.files.length > 6) message.innerHTML = '<div class="message error">Only the first 6 photos will be used.</div>';
+            document.getElementById('photoPreview').innerHTML = files.map((file, index) => `<div class="photo-slot">Photo ${index + 1}<br>${file.name}</div>`).join('');
+        });
+
+        document.getElementById('saveDraft').addEventListener('click', async () => {
+            try {
+                const id = await AdminApp.saveListing(form, 'draft');
+                message.innerHTML = '<div class="message">Draft saved.</div>';
+                history.replaceState(null, '', `listing-editor.html?id=${id}`);
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('previewListing').addEventListener('click', async () => {
+            try {
+                const id = await AdminApp.saveListing(form, 'draft');
+                window.location.href = `review-listing.html?id=${id}`;
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('submitApproval').addEventListener('click', async () => {
+            try {
+                const id = await AdminApp.saveListing(form, 'pending_approval');
+                message.innerHTML = '<div class="message">Submitted to principal broker for approval.</div>';
+                window.location.href = `review-listing.html?id=${id}`;
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
