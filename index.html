@@ -179,6 +179,50 @@
             color: var(--teal);
         }
 
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .dropdown-trigger {
+            background: none;
+            border: 0;
+            color: var(--white);
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .dropdown-trigger:hover,
+        .nav-dropdown.open .dropdown-trigger {
+            color: var(--teal);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 1rem);
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 210px;
+            padding: 0.75rem 0;
+            background: rgba(26, 26, 46, 0.98);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .nav-dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.8rem 1.25rem;
+            white-space: nowrap;
+        }
+
         .mobile-toggle {
             display: none;
             background: none;
@@ -244,11 +288,32 @@
 
         /* Services Section */
         .services {
+            position: relative;
             padding: 8rem 2rem;
             background: var(--light);
+            overflow: hidden;
+        }
+
+        .services::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('images/services-background.png') center / cover no-repeat;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+
+        .services::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(248, 249, 250, 0.32);
+            pointer-events: none;
         }
 
         .services .section-container {
+            position: relative;
+            z-index: 1;
             max-width: 1100px;
         }
 
@@ -541,6 +606,18 @@
                 text-align: center;
             }
 
+            .nav-dropdown {
+                width: 100%;
+            }
+
+            .dropdown-menu {
+                position: static;
+                transform: none;
+                box-shadow: none;
+                background: transparent;
+                padding: 0.5rem 0 0;
+            }
+
             .nav-links.active {
                 display: flex;
             }
@@ -570,7 +647,14 @@
     <nav id="navbar">
         <img src="images/logo.png" alt="SKYE Real Estate Group" class="nav-logo">
         <ul class="nav-links" id="navLinks">
-            <li><a href="#about">About</a></li>
+            <li class="nav-dropdown" id="aboutDropdown">
+                <button class="dropdown-trigger" type="button" aria-expanded="false">About</button>
+                <div class="dropdown-menu">
+                    <a href="company-story.html">Company Story</a>
+                    <a href="team.html">Team</a>
+                    <a href="values.html">Values</a>
+                </div>
+            </li>
             <li><a href="#services">Services</a></li>
             <li><a href="current-listings.html#properties">Properties</a></li>
             <li><a href="sold-listings.html">Sold</a></li>
@@ -735,9 +819,27 @@
             navLinks.classList.toggle('active');
         });
 
+        const aboutDropdown = document.getElementById('aboutDropdown');
+        const dropdownTrigger = aboutDropdown.querySelector('.dropdown-trigger');
+        dropdownTrigger.addEventListener('click', () => {
+            const isOpen = aboutDropdown.classList.toggle('open');
+            dropdownTrigger.setAttribute('aria-expanded', isOpen);
+        });
+
+        document.addEventListener('click', event => {
+            if (!aboutDropdown.contains(event.target)) {
+                aboutDropdown.classList.remove('open');
+                dropdownTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
         // Close mobile menu on link click
         navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => navLinks.classList.remove('active'));
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                aboutDropdown.classList.remove('open');
+                dropdownTrigger.setAttribute('aria-expanded', 'false');
+            });
         });
 
         // Scroll fade-in

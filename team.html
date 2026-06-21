@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team | SKYE Real Estate Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Montserrat, sans-serif; color: #1a1a2e; background: #f8f9fa; }
+        nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 1rem 3rem; background: rgba(26,26,46,.95); box-shadow: 0 2px 20px rgba(0,0,0,.25); }
+        .nav-logo { height: 50px; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; }
+        .nav-links a { color: #fff; text-decoration: none; font-size: .8rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: #5CC8C8; }
+        .hero { background: #4f514f; color: #fff; text-align: center; padding: 8rem 2rem 6rem; }
+        .hero img { width: min(420px, 86vw); background: rgba(255,255,255,.95); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .eyebrow { color: #5CC8C8; font-size: .75rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; }
+        h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 400; margin: 1rem 0; }
+        main { max-width: 980px; margin: 0 auto; padding: 5rem 2rem; }
+        .team-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); }
+        .team-card h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 400; margin: 0 0 1rem; }
+        .team-card p { color: #6c757d; line-height: 1.8; }
+        .team-card a { display: inline-block; margin-top: 1.5rem; color: #4AB0B0; font-weight: 700; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; font-size: .82rem; }
+        footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .team-card { padding: 2rem; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="images/logo.png" alt="SKYE Real Estate Group" class="nav-logo"></a>
+        <ul class="nav-links">
+            <li><a href="company-story.html">Company Story</a></li>
+            <li><a class="active" href="team.html">Team</a></li>
+            <li><a href="values.html">Values</a></li>
+            <li><a href="current-listings.html#properties">Properties</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <header class="hero">
+        <img src="images/logo.png" alt="SKYE Real Estate Group">
+        <p class="eyebrow">About SKYE</p>
+        <h1>Team</h1>
+    </header>
+    <main>
+        <article class="team-card">
+            <p class="eyebrow">Principal Broker</p>
+            <h2>Amber Krisky</h2>
+            <p>Amber provides leadership, client guidance, and principal broker oversight for SKYE Real Estate Group.</p>
+            <a href="amber-krisky.html">View Amber Krisky</a>
+        </article>
+    </main>
+    <footer>&copy; 2026 SKYE Real Estate Group. All rights reserved.</footer>
+</body>
+</html>
