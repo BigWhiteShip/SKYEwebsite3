@@ -1,5 +1,6 @@
 const AdminApp = (() => {
     const client = SkyeListings.client;
+    const maxListingPhotos = 4;
 
     function setupWarning() {
         if (SkyeListings.isConfigured) return '';
@@ -171,7 +172,86 @@ const AdminApp = (() => {
             form.elements.hide_address.checked = Boolean(data.hide_address);
         }
 
-        return data;
+        const photos = await getListingPhotos(id);
+        if (form.elements.photo_alt_text && photos.length) {
+            form.elements.photo_alt_text.value = photos[0].alt_text || '';
+        }
+
+        return { ...data, photos };
+    }
+
+    async function getListingPhotos(listingId) {
+        if (!client || !listingId) return [];
+        const { data, error } = await client
+            .from('listing_photos')
+            .select('*')
+            .eq('listing_id', listingId)
+            .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async function savePhotoAltText(listingId, altText) {
+        if (!client || !listingId) return;
+        const { error } = await client
+            .from('listing_photos')
+            .update({ alt_text: altText || 'SKYE Real Estate Group property listing photo' })
+            .eq('listing_id', listingId);
+
+        if (error) throw error;
+    }
+
+    async function saveListingPhotos(listingId, files, altText) {
+        if (!client || !listingId || !files || !files.length) return [];
+
+        const existingPhotos = await getListingPhotos(listingId);
+        const remainingSlots = Math.max(0, maxListingPhotos - existingPhotos.length);
+        const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+        if (!filesToUpload.length) {
+            throw new Error(`This listing already has the maximum of ${maxListingPhotos} photos.`);
+        }
+
+        const uploaded = [];
+
+        for (const [index, file] of filesToUpload.entries()) {
+            const sortOrder = existingPhotos.length + index;
+            const extension = file.name.split('.').pop() || 'jpg';
+            const storagePath = `${listingId}/${Date.now()}-${sortOrder}.${extension}`;
+            const { error: uploadError } = await client.storage
+                .from('listing-photos')
+                .upload(storagePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = client.storage
+                .from('listing-photos')
+                .getPublicUrl(storagePath);
+
+            const photoRecord = {
+                listing_id: listingId,
+                storage_path: storagePath,
+                public_url: publicUrlData.publicUrl,
+                alt_text: altText || 'SKYE Real Estate Group property listing photo',
+                sort_order: sortOrder,
+                is_primary: existingPhotos.length === 0 && index === 0
+            };
+
+            const { data, error } = await client
+                .from('listing_photos')
+                .insert(photoRecord)
+                .select('*')
+                .single();
+
+            if (error) throw error;
+            uploaded.push(data);
+        }
+
+        return uploaded;
     }
 
     async function saveListing(form, status = 'draft') {
@@ -232,6 +312,10 @@ const AdminApp = (() => {
         setPassword,
         loadDashboard,
         loadListingForEdit,
+        getListingPhotos,
+        savePhotoAltText,
+        saveListingPhotos,
+        maxListingPhotos,
         saveListing,
         updateStatus
     };

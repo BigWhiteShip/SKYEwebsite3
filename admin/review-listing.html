@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review Listing | SKYE Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=20260621-3">
 </head>
 <body>
     <div class="admin-shell">
@@ -42,7 +42,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260621-1"></script>
+    <script src="admin.js?v=20260621-3"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const listingId = params.get('id');
@@ -63,9 +63,13 @@
                 summary.innerHTML = `<div class="message error">${error.message}</div>`;
                 return;
             }
+            const photos = await AdminApp.getListingPhotos(listingId);
             const address = data.hide_address
                 ? 'Address available upon request'
                 : [data.address, data.city, data.state, data.zip_code].filter(Boolean).join(', ');
+            const photoGallery = photos.length
+                ? photos.map(photo => `<img src="${photo.public_url}" alt="${photo.alt_text}">`).join('')
+                : '<span>SKYE</span>';
 
             summary.innerHTML = `
                 <div class="button-row" style="margin-bottom: 1.5rem;">
@@ -74,7 +78,7 @@
                 </div>
                 <article class="preview-shell">
                     <div class="preview-hero">
-                        <span>SKYE</span>
+                        ${photoGallery}
                     </div>
                     <div class="preview-body">
                         <main>

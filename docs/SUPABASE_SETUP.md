@@ -22,8 +22,12 @@ This site stays hosted on GitHub Pages. Supabase provides the database, login, p
 
 1. Open Storage.
 2. Create a bucket named `listing-photos`.
-3. Keep it private for admin uploads.
-4. Public listing images can be exposed through signed/public URLs depending on final deployment preference.
+3. Make the bucket public so listing photos can render on GitHub Pages public listing pages.
+4. Public listing pages use the stored image URL from this bucket.
+
+If uploads fail because of storage permissions, run `supabase/storage-policies.sql` in the Supabase SQL Editor.
+
+The admin tool currently enforces a maximum of 4 listing photos.
 
 ## 4. Authentication Settings
 

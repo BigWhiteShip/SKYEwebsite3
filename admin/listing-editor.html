@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Listing | SKYE Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=20260621-3">
 </head>
 <body>
     <div class="admin-shell">
@@ -106,7 +106,7 @@
                     <div class="field full">
                         <label for="photos">Photos</label>
                         <input id="photos" name="photos" type="file" accept="image/*" multiple>
-                        <p class="help">Maximum 6 photos. Upload/reorder support is scaffolded here and will connect to the Supabase Storage bucket after the project is created.</p>
+                        <p class="help">Maximum 4 photos. The first photo is treated as the primary listing image.</p>
                         <div class="photo-list" id="photoPreview"></div>
                     </div>
                     <div class="field full">
@@ -126,17 +126,70 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260621-1"></script>
+    <script src="admin.js?v=20260621-3"></script>
     <script>
         const form = document.getElementById('listingForm');
         const message = document.getElementById('message');
+        const photoInput = document.getElementById('photos');
+        const photoPreview = document.getElementById('photoPreview');
         message.innerHTML = AdminApp.setupWarning();
         let isLoadingListing = true;
+        let currentPhotos = [];
+        let selectedPhotoFiles = [];
+
+        function renderPhotoPreviews() {
+            const savedCards = currentPhotos.map((photo, index) => `
+                <figure class="photo-preview-card">
+                    <img src="${photo.public_url}" alt="${photo.alt_text || `Saved listing photo ${index + 1}`}">
+                    <figcaption class="photo-preview-meta">
+                        <p class="photo-preview-title">${photo.is_primary ? 'Primary Photo' : `Saved Photo ${index + 1}`}</p>
+                        <p class="photo-preview-name">${photo.alt_text || photo.storage_path}</p>
+                    </figcaption>
+                </figure>
+            `);
+
+            const pendingCards = selectedPhotoFiles.map((file, index) => {
+                const imageUrl = URL.createObjectURL(file);
+                const label = currentPhotos.length === 0 && index === 0 ? 'Primary Photo' : `New Photo ${currentPhotos.length + index + 1}`;
+                return `
+                    <figure class="photo-preview-card pending">
+                        <img src="${imageUrl}" alt="Selected listing photo preview ${index + 1}">
+                        <figcaption class="photo-preview-meta">
+                            <p class="photo-preview-title">${label}</p>
+                            <p class="photo-preview-name">${file.name}</p>
+                        </figcaption>
+                    </figure>
+                `;
+            });
+
+            photoPreview.innerHTML = [...savedCards, ...pendingCards].join('');
+        }
+
+        async function saveCurrentListing(status) {
+            const id = await AdminApp.saveListing(form, status);
+            history.replaceState(null, '', `listing-editor.html?id=${id}`);
+
+            if (form.elements.photo_alt_text) {
+                await AdminApp.savePhotoAltText(id, form.elements.photo_alt_text.value);
+            }
+
+            if (selectedPhotoFiles.length) {
+                const uploadedPhotos = await AdminApp.saveListingPhotos(id, selectedPhotoFiles, form.elements.photo_alt_text.value);
+                currentPhotos = [...currentPhotos, ...uploadedPhotos].sort((a, b) => a.sort_order - b.sort_order);
+                selectedPhotoFiles = [];
+                photoInput.value = '';
+                renderPhotoPreviews();
+            }
+
+            return id;
+        }
 
         async function loadExistingListing() {
             try {
                 const listing = await AdminApp.loadListingForEdit(form);
                 if (listing) {
+                    currentPhotos = listing.photos || [];
+                    renderPhotoPreviews();
                     document.querySelector('.admin-header h1').textContent = 'Edit Listing';
                     message.innerHTML = `<div class="message">Editing: ${listing.title}</div>`;
                 }
@@ -154,10 +207,7 @@
             autosaveTimer = setTimeout(async () => {
                 if (!SkyeListings.isConfigured || !form.reportValidity()) return;
                 try {
-                    const id = await AdminApp.saveListing(form, 'draft');
-                    if (!new URLSearchParams(window.location.search).get('id')) {
-                        history.replaceState(null, '', `listing-editor.html?id=${id}`);
-                    }
+                    await saveCurrentListing('draft');
                     message.innerHTML = '<div class="message">Draft autosaved.</div>';
                 } catch (error) {
                     message.innerHTML = `<div class="message error">${error.message}</div>`;
@@ -167,17 +217,21 @@
 
         loadExistingListing();
 
-        document.getElementById('photos').addEventListener('change', event => {
-            const files = Array.from(event.target.files).slice(0, 6);
-            if (event.target.files.length > 6) message.innerHTML = '<div class="message error">Only the first 6 photos will be used.</div>';
-            document.getElementById('photoPreview').innerHTML = files.map((file, index) => `<div class="photo-slot">Photo ${index + 1}<br>${file.name}</div>`).join('');
+        photoInput.addEventListener('change', event => {
+            const remainingSlots = Math.max(0, AdminApp.maxListingPhotos - currentPhotos.length);
+            selectedPhotoFiles = Array.from(event.target.files).slice(0, remainingSlots);
+
+            if (event.target.files.length > remainingSlots) {
+                message.innerHTML = `<div class="message error">Only ${remainingSlots} more photo${remainingSlots === 1 ? '' : 's'} can be added. Each listing can have a maximum of ${AdminApp.maxListingPhotos} photos.</div>`;
+            }
+
+            renderPhotoPreviews();
         });
 
         document.getElementById('saveDraft').addEventListener('click', async () => {
             try {
-                const id = await AdminApp.saveListing(form, 'draft');
+                await saveCurrentListing('draft');
                 message.innerHTML = '<div class="message">Draft saved.</div>';
-                history.replaceState(null, '', `listing-editor.html?id=${id}`);
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
             }
@@ -185,7 +239,7 @@
 
         document.getElementById('previewListing').addEventListener('click', async () => {
             try {
-                const id = await AdminApp.saveListing(form, 'draft');
+                const id = await saveCurrentListing('draft');
                 window.location.href = `review-listing.html?id=${id}`;
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
@@ -194,7 +248,7 @@
 
         document.getElementById('submitApproval').addEventListener('click', async () => {
             try {
-                const id = await AdminApp.saveListing(form, 'pending_approval');
+                const id = await saveCurrentListing('pending_approval');
                 message.innerHTML = '<div class="message">Submitted to principal broker for approval.</div>';
                 window.location.href = `review-listing.html?id=${id}`;
             } catch (error) {

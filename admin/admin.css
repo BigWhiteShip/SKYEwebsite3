@@ -34,8 +34,15 @@ textarea { min-height: 160px; resize: vertical; }
 .message.error { background: #f7eded; }
 .photo-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .photo-slot { border: 1px dashed #bfc5c9; padding: 1rem; min-height: 120px; display: grid; place-items: center; color: #6c757d; text-align: center; }
+.photo-preview-card { background: #fff; border: 1px solid #d9dde1; overflow: hidden; }
+.photo-preview-card.pending { border-color: #5CC8C8; }
+.photo-preview-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #4f514f; }
+.photo-preview-meta { padding: .85rem; }
+.photo-preview-title { margin: 0 0 .35rem; color: #1a1a2e; font-weight: 700; font-size: .82rem; }
+.photo-preview-name { margin: 0; color: #6c757d; font-size: .78rem; line-height: 1.4; overflow-wrap: anywhere; }
 .preview-shell { background: #fff; overflow: hidden; }
-.preview-hero { min-height: 320px; background: #4f514f; color: rgba(255,255,255,.8); display: grid; place-items: center; text-align: center; padding: 2rem; }
+.preview-hero { min-height: 320px; background: #4f514f; color: rgba(255,255,255,.8); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; place-items: stretch; text-align: center; padding: 1rem; }
+.preview-hero img { width: 100%; height: 100%; min-height: 220px; object-fit: cover; display: block; background: #fff; }
 .preview-hero span { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.5rem, 7vw, 5rem); letter-spacing: .12em; }
 .preview-body { display: grid; grid-template-columns: 1fr 320px; gap: 3rem; padding: 3rem; }
 .preview-price { color: #4AB0B0; font-size: 1.5rem; font-weight: 700; margin: 0 0 1rem; }
@@ -50,5 +57,6 @@ textarea { min-height: 160px; resize: vertical; }
     .admin-main { padding: 2rem 1rem; }
     .form-grid { grid-template-columns: 1fr; }
     .photo-list { grid-template-columns: 1fr; }
+    .preview-hero { grid-template-columns: 1fr; }
     .preview-body { grid-template-columns: 1fr; padding: 2rem; }
 }
