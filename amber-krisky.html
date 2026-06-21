@@ -19,13 +19,14 @@
         .hero img { width: min(420px, 86vw); background: rgba(255,255,255,.95); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
         .eyebrow { color: #5CC8C8; font-size: .75rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; }
         h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 400; margin: 1rem 0; }
-        main { max-width: 900px; margin: 0 auto; padding: 5rem 2rem; }
-        .bio-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); }
+        main { max-width: 1050px; margin: 0 auto; padding: 5rem 2rem; }
+        .bio-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); display: grid; grid-template-columns: 320px 1fr; gap: 3rem; align-items: start; }
+        .bio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
         .bio-card p { color: #6c757d; font-size: 1.05rem; line-height: 1.9; }
         .contact-links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
         .contact-links a { color: #1a1a2e; text-decoration: none; border: 2px solid #5CC8C8; padding: .85rem 1rem; font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
         footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
-        @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .bio-card { padding: 2rem; } }
+        @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .bio-card { padding: 2rem; grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -46,11 +47,17 @@
     </header>
     <main>
         <article class="bio-card">
-            <p>Amber Krisky serves as principal broker for SKYE Real Estate Group, supporting clients and agents with practical real estate guidance, transaction oversight, and a commitment to clear communication.</p>
-            <div class="contact-links">
-                <a href="tel:+15032016197">Call Amber</a>
-                <a href="mailto:amberkrisky@gmail.com?subject=SKYE%20real%20estate%20inquiry">Email Amber</a>
-                <a href="team.html">Back to Team</a>
+            <img src="images/amber-profile.jpeg" alt="Amber Krisky, CEO of SKYE Group and Principal Broker for SKYE Group Real Estate">
+            <div>
+                <p>Amber is the CEO of SKYE Group and Principal Broker for SKYE Group Real Estate. A mother of six (including twins) Amber brings the same precision, resourcefulness, and attentiveness that defines her personal life to every client relationship. She is meticulous, organized, and deeply attuned to the details that matter most.</p>
+                <p>Raised in the close-knit community of Whitefish, Montana, Amber developed an early commitment to showing up for the people around her. She carried that ethos to Portland, where she has spent more than 25 years actively supporting local organizations and building meaningful connections across the city.</p>
+                <p>In an industry that can feel transactional, Amber operates differently. Her approach is concierge-level, attentive, hands-on, and built around each client's unique needs. She works with people during some of the most significant moments of their lives and treats that responsibility seriously, ensuring the experience is as seamless and positive as the outcome.</p>
+                <p>For Amber, the relationship doesn't end at closing. Her goal is simple: when she hands over the keys, every detail has been addressed, and the trust she's earned continues long after.</p>
+                <div class="contact-links">
+                    <a href="tel:+15032016197">Call Amber</a>
+                    <a href="mailto:amberkrisky@gmail.com?subject=SKYE%20real%20estate%20inquiry">Email Amber</a>
+                    <a href="team.html">Back to Team</a>
+                </div>
             </div>
         </article>
     </main>

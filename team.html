@@ -20,12 +20,13 @@
         .eyebrow { color: #5CC8C8; font-size: .75rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; }
         h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 400; margin: 1rem 0; }
         main { max-width: 980px; margin: 0 auto; padding: 5rem 2rem; }
-        .team-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); }
+        .team-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: center; }
+        .team-card img { width: 220px; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
         .team-card h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 400; margin: 0 0 1rem; }
         .team-card p { color: #6c757d; line-height: 1.8; }
         .team-card a { display: inline-block; margin-top: 1.5rem; color: #4AB0B0; font-weight: 700; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; font-size: .82rem; }
         footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
-        @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .team-card { padding: 2rem; } }
+        @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .team-card { padding: 2rem; grid-template-columns: 1fr; } .team-card img { width: 100%; max-width: 260px; } }
     </style>
 </head>
 <body>
@@ -46,10 +47,13 @@
     </header>
     <main>
         <article class="team-card">
-            <p class="eyebrow">Principal Broker</p>
-            <h2>Amber Krisky</h2>
-            <p>Amber provides leadership, client guidance, and principal broker oversight for SKYE Real Estate Group.</p>
-            <a href="amber-krisky.html">View Amber Krisky</a>
+            <img src="images/amber-profile.jpeg" alt="Amber Krisky, CEO of SKYE Group and Principal Broker for SKYE Group Real Estate">
+            <div>
+                <p class="eyebrow">CEO & Principal Broker</p>
+                <h2>Amber Krisky</h2>
+                <p>Amber is the CEO of SKYE Group and Principal Broker for SKYE Group Real Estate.</p>
+                <a href="amber-krisky.html">View Amber Krisky</a>
+            </div>
         </article>
     </main>
     <footer>&copy; 2026 SKYE Real Estate Group. All rights reserved.</footer>
