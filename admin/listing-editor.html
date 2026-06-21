@@ -60,7 +60,8 @@
                     </div>
                     <div class="field">
                         <label for="price">Price</label>
-                        <input id="price" name="price" type="number" min="1" required>
+                        <input id="price" name="price" type="text" inputmode="decimal" autocomplete="off" required placeholder="650,000">
+                        <p class="help">Commas are okay. Example: 650,000</p>
                     </div>
                     <div class="field">
                         <label for="mls_number">MLS Number</label>
@@ -137,7 +138,10 @@
             autosaveTimer = setTimeout(async () => {
                 if (!SkyeListings.isConfigured || !form.reportValidity()) return;
                 try {
-                    await AdminApp.saveListing(form, 'draft');
+                    const id = await AdminApp.saveListing(form, 'draft');
+                    if (!new URLSearchParams(window.location.search).get('id')) {
+                        history.replaceState(null, '', `listing-editor.html?id=${id}`);
+                    }
                     message.innerHTML = '<div class="message">Draft autosaved.</div>';
                 } catch (error) {
                     message.innerHTML = `<div class="message error">${error.message}</div>`;

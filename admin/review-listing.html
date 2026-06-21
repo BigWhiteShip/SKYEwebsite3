@@ -27,8 +27,9 @@
             </div>
             <div id="message"></div>
             <section class="panel">
-                <p class="help">This review page is where the broker can publish, unpublish, mark sold, or archive. The public PDP preview is available after Supabase is connected and a listing slug exists.</p>
+                <p class="help">This page shows a private preview of how the listing will look once published. It is not visible on the public website until the principal broker clicks Publish.</p>
                 <div class="button-row">
+                    <a class="btn muted" id="editListingButton" href="listing-editor.html">Back to Edit</a>
                     <button class="btn" data-status="published">Publish</button>
                     <button class="btn secondary" data-status="unpublished">Unpublish</button>
                     <button class="btn secondary" data-status="sold">Mark Sold</button>
@@ -48,6 +49,7 @@
         const message = document.getElementById('message');
         const summary = document.getElementById('reviewSummary');
         document.getElementById('editLink').href = `listing-editor.html?id=${listingId || ''}`;
+        document.getElementById('editListingButton').href = `listing-editor.html?id=${listingId || ''}`;
         message.innerHTML = AdminApp.setupWarning();
 
         async function loadReview() {
@@ -61,15 +63,43 @@
                 summary.innerHTML = `<div class="message error">${error.message}</div>`;
                 return;
             }
+            const address = data.hide_address
+                ? 'Address available upon request'
+                : [data.address, data.city, data.state, data.zip_code].filter(Boolean).join(', ');
+
             summary.innerHTML = `
-                <p class="status-pill">${SkyeListings.statusLabels[data.status]}</p>
-                <h2>${data.title}</h2>
-                <p class="help">${data.description}</p>
-                <p><strong>${SkyeListings.formatMoney(data.price)}</strong></p>
-                <p>${data.hide_address ? 'Address available upon request' : [data.address, data.city, data.state, data.zip_code].filter(Boolean).join(', ')}</p>
-                <p>MLS # ${data.mls_number}</p>
-                <p>Agent: ${data.agent_name} | ${data.agent_office_phone} | ${data.agent_mobile_phone} | ${data.agent_email}</p>
-                <p><a href="../property.html?slug=${data.slug}" target="_blank">Open public preview</a></p>
+                <div class="button-row" style="margin-bottom: 1.5rem;">
+                    <span class="status-pill">${SkyeListings.statusLabels[data.status]}</span>
+                    <span class="help">Private preview only</span>
+                </div>
+                <article class="preview-shell">
+                    <div class="preview-hero">
+                        <span>SKYE</span>
+                    </div>
+                    <div class="preview-body">
+                        <main>
+                            <p class="preview-price">${SkyeListings.formatMoney(data.price)}</p>
+                            <h2 class="preview-title">${data.title}</h2>
+                            <p class="preview-address">${address}</p>
+                            <div class="preview-stats">
+                                <span>${data.bedrooms} Beds</span>
+                                <span>${data.bathrooms} Baths</span>
+                                <span>${Number(data.interior_sq_ft).toLocaleString()} Sq Ft</span>
+                                <span>${data.lot_size} Lot</span>
+                            </div>
+                            <p class="preview-copy">${data.description}</p>
+                            <p class="preview-meta">MLS # ${data.mls_number}</p>
+                            <p><a href="${data.zillow_url}" target="_blank" rel="noopener noreferrer">View full Zillow listing for complete property details</a></p>
+                        </main>
+                        <aside class="preview-agent">
+                            <p class="eyebrow">Listing Agent</p>
+                            <h2>${data.agent_name}</h2>
+                            <a href="tel:${data.agent_office_phone}">Office: ${data.agent_office_phone}</a>
+                            <a href="tel:${data.agent_mobile_phone}">Mobile: ${data.agent_mobile_phone}</a>
+                            <a href="mailto:${data.agent_email}">${data.agent_email}</a>
+                        </aside>
+                    </div>
+                </article>
             `;
         }
 

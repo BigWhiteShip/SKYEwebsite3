@@ -81,6 +81,11 @@ const AdminApp = (() => {
         const slugBase = data.hide_address === 'on'
             ? `${data.title}-${data.city}-${data.state}`
             : `${data.address}-${data.city}-${data.state}`;
+        const price = parsePrice(data.price);
+
+        if (!price || price < 1) {
+            throw new Error('Enter a valid price.');
+        }
 
         return {
             title: data.title,
@@ -91,7 +96,7 @@ const AdminApp = (() => {
             state: data.state || 'OR',
             zip_code: data.zip_code,
             hide_address: data.hide_address === 'on',
-            price: Number(data.price),
+            price,
             bedrooms: Number(data.bedrooms),
             bathrooms: Number(data.bathrooms),
             interior_sq_ft: Number(data.interior_sq_ft),
@@ -104,6 +109,11 @@ const AdminApp = (() => {
             agent_email: data.agent_email,
             autosaved_at: new Date().toISOString()
         };
+    }
+
+    function parsePrice(value) {
+        const normalized = String(value || '').replace(/[$,\s]/g, '');
+        return Math.round(Number(normalized));
     }
 
     async function saveListing(form, status = 'draft') {
@@ -126,6 +136,19 @@ const AdminApp = (() => {
             .insert({ ...listing, created_by: session.user.id })
             .select('id')
             .single();
+        if (error && error.code === '23505' && String(error.message).includes('listings_slug_key')) {
+            const retry = await client
+                .from('listings')
+                .insert({
+                    ...listing,
+                    slug: `${listing.slug}-${Date.now().toString(36)}`,
+                    created_by: session.user.id
+                })
+                .select('id')
+                .single();
+            if (retry.error) throw retry.error;
+            return retry.data.id;
+        }
         if (error) throw error;
         return data.id;
     }
