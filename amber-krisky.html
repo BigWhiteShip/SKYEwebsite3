@@ -22,13 +22,15 @@
         h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 400; margin: 1rem 0; }
         main { max-width: 1050px; margin: 0 auto; padding: 5rem 2rem; }
         .bio-card { background: #fff; padding: 3rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); display: grid; grid-template-columns: 320px 1fr; gap: 3rem; align-items: start; }
+        .agent-photo-block { display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
         .bio-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
         .bio-card p { color: #6c757d; font-size: 1.05rem; line-height: 1.9; }
         .contact-links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
-        .contact-links a { color: #1a1a2e; text-decoration: none; border: 2px solid #5CC8C8; padding: .85rem 1rem; font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
-        .social-links { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; }
+        .contact-links a { color: #1a1a2e; text-decoration: none; border: 2px solid #5CC8C8; padding: .85rem 1rem; font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; transition: background .2s ease, color .2s ease, transform .2s ease; }
+        .contact-links a:hover { background: #5CC8C8; color: #fff; transform: translateY(-2px); }
+        .social-links { display: flex; align-items: center; justify-content: center; gap: 1rem; }
         .social-links a { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #5CC8C8; border-radius: 50%; color: #1a1a2e; text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
-        .social-links a:hover { background: #5CC8C8; color: #1a1a2e; transform: translateY(-2px); }
+        .social-links a:hover { background: #5CC8C8; color: #fff; transform: translateY(-2px); }
         .social-links svg { width: 22px; height: 22px; fill: currentColor; display: block; }
         footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
         @media (max-width: 760px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .bio-card { padding: 2rem; grid-template-columns: 1fr; } }
@@ -52,17 +54,8 @@
     </header>
     <main>
         <article class="bio-card">
-            <img src="images/amber-profile.jpeg" alt="Amber Krisky, CEO of SKYE Group and Principal Broker for SKYE Group Real Estate">
-            <div>
-                <p>Amber is the CEO of SKYE Group and Principal Broker for SKYE Group Real Estate. A mother of six (including twins) Amber brings the same precision, resourcefulness, and attentiveness that defines her personal life to every client relationship. She is meticulous, organized, and deeply attuned to the details that matter most.</p>
-                <p>Raised in the close-knit community of Whitefish, Montana, Amber developed an early commitment to showing up for the people around her. She carried that ethos to Portland, where she has spent more than 25 years actively supporting local organizations and building meaningful connections across the city.</p>
-                <p>In an industry that can feel transactional, Amber operates differently. Her approach is concierge-level, attentive, hands-on, and built around each client's unique needs. She works with people during some of the most significant moments of their lives and treats that responsibility seriously, ensuring the experience is as seamless and positive as the outcome.</p>
-                <p>For Amber, the relationship doesn't end at closing. Her goal is simple: when she hands over the keys, every detail has been addressed, and the trust she's earned continues long after.</p>
-                <div class="contact-links">
-                    <a href="tel:+15032016197">Call Amber</a>
-                    <a href="mailto:amber.krisky@skyegroup.realestate?subject=SKYE%20real%20estate%20inquiry">Email Amber</a>
-                    <a href="team.html">Back to Team</a>
-                </div>
+            <div class="agent-photo-block">
+                <img src="images/amber-profile.jpeg" alt="Amber Krisky, CEO of SKYE Group and Principal Broker for SKYE Group Real Estate">
                 <div class="social-links" aria-label="Amber Krisky social media links">
                     <a href="https://www.facebook.com/akriskypdxrealtor" target="_blank" rel="noopener noreferrer" aria-label="Amber Krisky on Facebook">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -74,11 +67,22 @@
                             <path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2zm0 2A3.75 3.75 0 0 0 4 7.75v8.5A3.75 3.75 0 0 0 7.75 20h8.5A3.75 3.75 0 0 0 20 16.25v-8.5A3.75 3.75 0 0 0 16.25 4h-8.5zM12 7.25A4.75 4.75 0 1 1 12 16.75 4.75 4.75 0 0 1 12 7.25zm0 2A2.75 2.75 0 1 0 12 14.75 2.75 2.75 0 0 0 12 9.25zM17.05 6.7a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/>
                         </svg>
                     </a>
-                    <a href="https://www.linkedin.com/amberkrisky/" target="_blank" rel="noopener noreferrer" aria-label="Amber Krisky on LinkedIn">
+                    <a href="https://www.linkedin.com/in/amber-krisky-064bb61a6/" target="_blank" rel="noopener noreferrer" aria-label="Amber Krisky on LinkedIn">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M6.94 8.98H3.8V20h3.14V8.98zM5.37 4A1.82 1.82 0 1 0 5.36 7.64 1.82 1.82 0 0 0 5.37 4zM20.2 13.86c0-3.22-1.72-4.72-4.02-4.72-1.85 0-2.68 1.02-3.14 1.74v-1.9H9.9c.04 1.03 0 11.02 0 11.02h3.14v-6.16c0-.33.02-.66.12-.9.25-.66.82-1.35 1.78-1.35 1.26 0 1.76.96 1.76 2.36V20h3.14l.36-6.14z"/>
                         </svg>
                     </a>
+                </div>
+            </div>
+            <div>
+                <p>Amber is the CEO of SKYE Group and Principal Broker for SKYE Group Real Estate. A mother of six (including twins) Amber brings the same precision, resourcefulness, and attentiveness that defines her personal life to every client relationship. She is meticulous, organized, and deeply attuned to the details that matter most.</p>
+                <p>Raised in the close-knit community of Whitefish, Montana, Amber developed an early commitment to showing up for the people around her. She carried that ethos to Portland, where she has spent more than 25 years actively supporting local organizations and building meaningful connections across the city.</p>
+                <p>In an industry that can feel transactional, Amber operates differently. Her approach is concierge-level, attentive, hands-on, and built around each client's unique needs. She works with people during some of the most significant moments of their lives and treats that responsibility seriously, ensuring the experience is as seamless and positive as the outcome.</p>
+                <p>For Amber, the relationship doesn't end at closing. Her goal is simple: when she hands over the keys, every detail has been addressed, and the trust she's earned continues long after.</p>
+                <div class="contact-links">
+                    <a href="tel:+15032016197">Call Amber</a>
+                    <a href="mailto:amber.krisky@skyegroup.realestate?subject=SKYE%20real%20estate%20inquiry">Email Amber</a>
+                    <a href="team.html">Back to Team</a>
                 </div>
             </div>
         </article>
