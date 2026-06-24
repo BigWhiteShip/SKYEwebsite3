@@ -6,7 +6,7 @@
     <title>Review Listing | SKYE Admin</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260621-4">
+    <link rel="stylesheet" href="admin.css?v=20260623-approval">
 </head>
 <body>
     <div class="admin-shell">
@@ -28,13 +28,17 @@
             </div>
             <div id="message"></div>
             <section class="panel">
-                <p class="help">This page shows a private preview of how the listing will look once published. It is not visible on the public website until the principal broker clicks Publish.</p>
-                <div class="button-row">
+                <p class="help" id="reviewHelp">This page shows a private preview of how the listing will look once published. It is not visible on the public website until the principal broker clicks Publish.</p>
+                <div class="button-row" id="brokerActions" hidden>
                     <a class="btn muted" id="editListingButton" href="listing-editor.html">Back to Edit</a>
-                    <button class="btn" data-status="published">Publish</button>
+                    <button class="btn" data-status="published">Approve & Publish</button>
                     <button class="btn secondary" data-status="unpublished">Unpublish</button>
                     <button class="btn secondary" data-status="sold">Mark Sold</button>
                     <button class="btn danger" data-status="archived">Archived - Expired - Unsold</button>
+                </div>
+                <div class="button-row" id="agentActions" hidden>
+                    <a class="btn muted" id="agentEditListingButton" href="listing-editor.html">Back to Edit</a>
+                    <span class="help">Only the principal broker can publish this listing.</span>
                 </div>
             </section>
             <section id="reviewSummary" class="panel"></section>
@@ -43,14 +47,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260621-4"></script>
+    <script src="admin.js?v=20260623-approval"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const listingId = params.get('id');
         const message = document.getElementById('message');
         const summary = document.getElementById('reviewSummary');
+        const brokerActions = document.getElementById('brokerActions');
+        const agentActions = document.getElementById('agentActions');
+        const reviewHelp = document.getElementById('reviewHelp');
         document.getElementById('editLink').href = `listing-editor.html?id=${listingId || ''}`;
         document.getElementById('editListingButton').href = `listing-editor.html?id=${listingId || ''}`;
+        document.getElementById('agentEditListingButton').href = `listing-editor.html?id=${listingId || ''}`;
         message.innerHTML = AdminApp.setupWarning();
 
         async function loadReview() {
@@ -58,7 +66,14 @@
                 summary.innerHTML = '<h2>Listing review pending setup</h2><p class="help">Connect Supabase and open this page with a listing ID to review live data.</p>';
                 return;
             }
-            await SkyeListings.requireSession();
+            const profile = await AdminApp.getCurrentProfile();
+            const canApprove = AdminApp.isPrincipalBroker(profile);
+            brokerActions.hidden = !canApprove;
+            agentActions.hidden = canApprove;
+            reviewHelp.textContent = canApprove
+                ? 'Review the private preview below. Approve & Publish makes this listing visible on the public listings page.'
+                : 'This is a private preview. The principal broker must approve and publish it before it appears on the public listings page.';
+
             const { data, error } = await SkyeListings.client.from('listings').select('*').eq('id', listingId).single();
             if (error) {
                 summary.innerHTML = `<div class="message error">${error.message}</div>`;
@@ -112,7 +127,9 @@
             button.addEventListener('click', async () => {
                 try {
                     await AdminApp.updateStatus(listingId, button.dataset.status);
-                    message.innerHTML = '<div class="message">Status updated.</div>';
+                    message.innerHTML = button.dataset.status === 'published'
+                        ? '<div class="message">Listing approved and published. It is now eligible to show on the public listings page.</div>'
+                        : '<div class="message">Status updated.</div>';
                     loadReview();
                 } catch (error) {
                     message.innerHTML = `<div class="message error">${error.message}</div>`;

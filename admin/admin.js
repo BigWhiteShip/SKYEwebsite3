@@ -37,6 +37,23 @@ const AdminApp = (() => {
         if (error) throw error;
     }
 
+    async function getCurrentProfile() {
+        if (!client) return null;
+        const session = await SkyeListings.requireSession();
+        const { data, error } = await client
+            .from('profiles')
+            .select('id,email,full_name,role')
+            .eq('id', session.user.id)
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    function isPrincipalBroker(profile) {
+        return profile && profile.role === 'principal_broker';
+    }
+
     async function loadDashboard() {
         const root = document.getElementById('dashboardListings');
         if (!root) return;
@@ -44,9 +61,11 @@ const AdminApp = (() => {
         if (!client) return;
 
         await SkyeListings.requireSession();
+        const profile = await getCurrentProfile();
+        const canApprove = isPrincipalBroker(profile);
         const { data, error } = await client
             .from('listings')
-            .select('id,title,status,price,mls_number,updated_at,created_by')
+            .select('id,title,status,price,mls_number,updated_at,created_by,agent_name')
             .order('updated_at', { ascending: false });
 
         if (error) {
@@ -59,17 +78,37 @@ const AdminApp = (() => {
             return;
         }
 
+        const actionForListing = listing => {
+            if (canApprove) {
+                const label = listing.status === 'pending_approval' ? 'Review & Publish' : 'Manage';
+                return `<a class="btn secondary" href="review-listing.html?id=${listing.id}">${label}</a>`;
+            }
+
+            if (listing.status === 'pending_approval') {
+                return `<a class="btn secondary" href="review-listing.html?id=${listing.id}">View Review</a>`;
+            }
+
+            return `<a class="btn secondary" href="listing-editor.html?id=${listing.id}">Edit</a>`;
+        };
+
         root.innerHTML = `
+            <div class="panel">
+                <div class="button-row">
+                    <span class="status-pill">${canApprove ? 'Principal Broker' : 'Agent'}</span>
+                    <span class="help">${canApprove ? 'Broker approval tools are enabled for this account.' : 'Submit listings for broker approval when they are ready.'}</span>
+                </div>
+            </div>
             <table class="listing-table">
-                <thead><tr><th>Listing</th><th>Status</th><th>Price</th><th>MLS</th><th></th></tr></thead>
+                <thead><tr><th>Listing</th><th>Status</th><th>Agent</th><th>Price</th><th>MLS</th><th></th></tr></thead>
                 <tbody>
                     ${data.map(listing => `
                         <tr>
                             <td>${listing.title}</td>
                             <td><span class="status-pill">${SkyeListings.statusLabels[listing.status] || listing.status}</span></td>
+                            <td>${listing.agent_name || ''}</td>
                             <td>${SkyeListings.formatMoney(listing.price)}</td>
                             <td>${listing.mls_number || ''}</td>
-                            <td><a class="btn secondary" href="listing-editor.html?id=${listing.id}">Edit</a></td>
+                            <td>${actionForListing(listing)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -293,9 +332,14 @@ const AdminApp = (() => {
 
     async function updateStatus(id, status) {
         if (!client) throw new Error('Supabase is not configured.');
+        const session = await SkyeListings.requireSession();
         const timestamp = new Date().toISOString();
         const patch = { status };
-        if (status === 'published') patch.published_at = timestamp;
+        if (status === 'published') {
+            patch.approved_by = session.user.id;
+            patch.approved_at = timestamp;
+            patch.published_at = timestamp;
+        }
         if (status === 'sold') patch.sold_at = timestamp;
         if (status === 'archived') patch.archived_at = timestamp;
         if (status === 'pending_approval') patch.submitted_at = timestamp;
@@ -310,6 +354,8 @@ const AdminApp = (() => {
         logout,
         resetPassword,
         setPassword,
+        getCurrentProfile,
+        isPrincipalBroker,
         loadDashboard,
         loadListingForEdit,
         getListingPhotos,
