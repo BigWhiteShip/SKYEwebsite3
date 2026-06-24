@@ -72,11 +72,19 @@ const AdminApp = (() => {
     function normalizeListingStatus(status) {
         const normalized = String(status || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
         const aliases = {
-            needs_edit: 'needs_edits',
-            needs_edits: 'needs_edits'
+            needs_edit: 'unpublished',
+            needs_edits: 'unpublished'
         };
 
         return aliases[normalized] || normalized;
+    }
+
+    function displayStatusLabel(listing, latestApprovalEvent) {
+        if (listing.status === 'unpublished' && latestApprovalEvent && latestApprovalEvent.event_type === 'changes_requested') {
+            return 'Needs Edits';
+        }
+
+        return SkyeListings.statusLabels[listing.status] || listing.status;
     }
 
     async function loadDashboard() {
@@ -102,6 +110,23 @@ const AdminApp = (() => {
             root.innerHTML = '<div class="panel"><h2>No Listings Yet</h2><p class="help">Create the first listing to start the approval workflow.</p></div>';
             return;
         }
+
+        const listingIds = data.map(listing => listing.id);
+        const { data: approvalEvents, error: approvalError } = await client
+            .from('listing_approval_events')
+            .select('listing_id,event_type,created_at')
+            .in('listing_id', listingIds)
+            .order('created_at', { ascending: false });
+
+        if (approvalError) {
+            root.innerHTML = `<div class="message error">${approvalError.message}</div>`;
+            return;
+        }
+
+        const latestApprovalEvents = {};
+        (approvalEvents || []).forEach(event => {
+            if (!latestApprovalEvents[event.listing_id]) latestApprovalEvents[event.listing_id] = event;
+        });
 
         const actionForListing = listing => {
             if (canApprove) {
@@ -129,7 +154,7 @@ const AdminApp = (() => {
                     ${data.map(listing => `
                         <tr>
                             <td>${listing.title}</td>
-                            <td><span class="status-pill">${SkyeListings.statusLabels[listing.status] || listing.status}</span></td>
+                            <td><span class="status-pill">${displayStatusLabel(listing, latestApprovalEvents[listing.id])}</span></td>
                             <td>${listing.agent_name || ''}</td>
                             <td>${SkyeListings.formatMoney(listing.price)}</td>
                             <td>${listing.mls_number || ''}</td>
@@ -410,7 +435,7 @@ const AdminApp = (() => {
         const notes = String(comments || '').trim();
         if (!notes) throw new Error('Add comments before sending the listing back for edits.');
 
-        await updateStatus(id, 'needs_edits');
+        await updateStatus(id, 'unpublished');
         await createApprovalEvent(id, 'changes_requested', notes);
         return sendEditRequestEmail({ ...listing, id }, notes);
     }
@@ -434,7 +459,7 @@ const AdminApp = (() => {
         if (listingStatus === 'sold') patch.sold_at = timestamp;
         if (listingStatus === 'archived') patch.archived_at = timestamp;
         if (listingStatus === 'pending_approval') patch.submitted_at = timestamp;
-        if (listingStatus === 'needs_edits') patch.published_at = null;
+        if (listingStatus === 'unpublished') patch.published_at = null;
 
         const { error } = await client.from('listings').update(patch).eq('id', id);
         if (error) throw error;

@@ -51,7 +51,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260624-status-fix"></script>
+    <script src="admin.js?v=20260624-edit-status"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const listingId = params.get('id');
@@ -92,6 +92,10 @@
             currentListing = data;
             const events = await AdminApp.getApprovalEvents(listingId);
             const commentEvents = events.filter(event => event.notes);
+            const latestEvent = events[0];
+            const statusLabel = data.status === 'unpublished' && latestEvent && latestEvent.event_type === 'changes_requested'
+                ? 'Needs Edits'
+                : SkyeListings.statusLabels[data.status];
             commentHistory.hidden = !commentEvents.length;
             if (commentEvents.length) {
                 commentHistory.innerHTML = `
@@ -117,7 +121,7 @@
 
             summary.innerHTML = `
                 <div class="button-row" style="margin-bottom: 1.5rem;">
-                    <span class="status-pill">${SkyeListings.statusLabels[data.status]}</span>
+                    <span class="status-pill">${statusLabel}</span>
                     <span class="help">Private preview only</span>
                 </div>
                 <article class="preview-shell">
