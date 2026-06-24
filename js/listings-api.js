@@ -8,6 +8,7 @@ const SkyeListings = (() => {
     const statusLabels = {
         draft: 'Draft',
         pending_approval: 'Pending Approval',
+        needs_edits: 'Needs Edits',
         published: 'Published',
         unpublished: 'Unpublished',
         sold: 'Sold',

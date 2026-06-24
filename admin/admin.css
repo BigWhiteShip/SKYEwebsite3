@@ -17,6 +17,8 @@ h1 { font-size: clamp(2rem, 4vw, 3.5rem); }
 .btn.secondary { background: transparent; border: 2px solid #5CC8C8; color: #4AB0B0; }
 .btn.danger { background: #6d3939; color: #fff; }
 .btn.muted { background: #e7e9eb; color: #1a1a2e; }
+.review-actions { margin-top: 1rem; }
+.management-actions { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7e9; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
 .field.full { grid-column: 1 / -1; }
 label { display: block; font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
@@ -32,6 +34,10 @@ textarea { min-height: 160px; resize: vertical; }
 .auth-logo { width: 100%; margin-bottom: 2rem; }
 .message { padding: 1rem; margin: 1rem 0; background: #edf7f7; color: #1a1a2e; line-height: 1.6; }
 .message.error { background: #f7eded; }
+.comment-list { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.comment-item { padding: 1rem; border: 1px solid #e5e7e9; background: #f8f9fa; }
+.comment-item p { color: #1a1a2e; line-height: 1.7; margin: .75rem 0 0; white-space: pre-wrap; }
+.comment-item .help { color: #6c757d; margin-top: .5rem; }
 .photo-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .photo-slot { border: 1px dashed #bfc5c9; padding: 1rem; min-height: 120px; display: grid; place-items: center; color: #6c757d; text-align: center; }
 .photo-preview-card { background: #fff; border: 1px solid #d9dde1; overflow: hidden; }

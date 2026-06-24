@@ -4,6 +4,7 @@ create type app_role as enum ('agent', 'principal_broker');
 create type listing_status as enum (
     'draft',
     'pending_approval',
+    'needs_edits',
     'published',
     'unpublished',
     'sold',
@@ -136,8 +137,8 @@ with check (created_by = auth.uid());
 
 create policy "Agents can update owned non-final listings"
 on public.listings for update
-using (created_by = auth.uid() and status in ('draft', 'unpublished'))
-with check (created_by = auth.uid() and status in ('draft', 'pending_approval', 'unpublished'));
+using (created_by = auth.uid() and status::text in ('draft', 'needs_edits', 'unpublished'))
+with check (created_by = auth.uid() and status::text in ('draft', 'pending_approval', 'needs_edits', 'unpublished'));
 
 create policy "Broker can manage all listings"
 on public.listings for all

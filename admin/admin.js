@@ -54,6 +54,21 @@ const AdminApp = (() => {
         return profile && profile.role === 'principal_broker';
     }
 
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[character]);
+    }
+
+    function agentFirstName(listing) {
+        const source = listing.agent_name || listing.agent_email || '';
+        return String(source).trim().split(/\s+/)[0] || 'there';
+    }
+
     async function loadDashboard() {
         const root = document.getElementById('dashboardListings');
         if (!root) return;
@@ -330,6 +345,71 @@ const AdminApp = (() => {
         return data.id;
     }
 
+    async function getApprovalEvents(listingId) {
+        if (!client || !listingId) return [];
+        const { data, error } = await client
+            .from('listing_approval_events')
+            .select('id,event_type,notes,created_at,actor_id')
+            .eq('listing_id', listingId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    async function createApprovalEvent(listingId, eventType, notes = '') {
+        if (!client || !listingId) return null;
+        const session = await SkyeListings.requireSession();
+        const { data, error } = await client
+            .from('listing_approval_events')
+            .insert({
+                listing_id: listingId,
+                actor_id: session.user.id,
+                event_type: eventType,
+                notes
+            })
+            .select('*')
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async function sendEditRequestEmail(listing, comments) {
+        if (!client || !listing) return null;
+        const subject = 'Please review and update your listing';
+        const textBody = `Hello ${agentFirstName(listing)}, I have reviewed the listing.  Please take a look at my comments and re-submit.`;
+
+        const { data, error } = await client.functions.invoke('request-listing-edits', {
+            body: {
+                listingId: listing.id,
+                listingTitle: listing.title,
+                agentEmail: listing.agent_email,
+                agentFirstName: agentFirstName(listing),
+                comments,
+                subject,
+                textBody
+            }
+        });
+
+        if (error) throw error;
+        return data;
+    }
+
+    async function requestEdits(id, listing, comments) {
+        const notes = String(comments || '').trim();
+        if (!notes) throw new Error('Add comments before sending the listing back for edits.');
+
+        await updateStatus(id, 'needs_edits');
+        await createApprovalEvent(id, 'changes_requested', notes);
+        return sendEditRequestEmail({ ...listing, id }, notes);
+    }
+
+    async function approveAndPublish(id, comments = '') {
+        await updateStatus(id, 'published');
+        await createApprovalEvent(id, 'published', String(comments || '').trim());
+    }
+
     async function updateStatus(id, status) {
         if (!client) throw new Error('Supabase is not configured.');
         const session = await SkyeListings.requireSession();
@@ -343,6 +423,7 @@ const AdminApp = (() => {
         if (status === 'sold') patch.sold_at = timestamp;
         if (status === 'archived') patch.archived_at = timestamp;
         if (status === 'pending_approval') patch.submitted_at = timestamp;
+        if (status === 'needs_edits') patch.published_at = null;
 
         const { error } = await client.from('listings').update(patch).eq('id', id);
         if (error) throw error;
@@ -356,9 +437,14 @@ const AdminApp = (() => {
         setPassword,
         getCurrentProfile,
         isPrincipalBroker,
+        escapeHtml,
         loadDashboard,
         loadListingForEdit,
         getListingPhotos,
+        getApprovalEvents,
+        createApprovalEvent,
+        requestEdits,
+        approveAndPublish,
         savePhotoAltText,
         saveListingPhotos,
         maxListingPhotos,

@@ -29,18 +29,28 @@
             <div id="message"></div>
             <section class="panel">
                 <p class="help" id="reviewHelp">This page shows a private preview of how the listing will look once published. It is not visible on the public website until the principal broker clicks Publish.</p>
-                <div class="button-row" id="brokerActions" hidden>
-                    <a class="btn muted" id="editListingButton" href="listing-editor.html">Back to Edit</a>
-                    <button class="btn" data-status="published">Approve & Publish</button>
-                    <button class="btn secondary" data-status="unpublished">Unpublish</button>
-                    <button class="btn secondary" data-status="sold">Mark Sold</button>
-                    <button class="btn danger" data-status="archived">Archived - Expired - Unsold</button>
+                <div id="brokerActions" hidden>
+                    <div class="field full">
+                        <label for="brokerComments">Principal Broker Comments</label>
+                        <textarea id="brokerComments" placeholder="Add comments for the submitting agent."></textarea>
+                    </div>
+                    <div class="button-row review-actions">
+                        <button class="btn secondary" type="button" id="sendBackButton">Send Back for Edits</button>
+                        <button class="btn" type="button" id="publishButton">Publish as Submitted</button>
+                    </div>
+                    <div class="button-row management-actions">
+                        <a class="btn muted" id="editListingButton" href="listing-editor.html">Back to Edit</a>
+                        <button class="btn secondary" data-status="unpublished">Unpublish</button>
+                        <button class="btn secondary" data-status="sold">Mark Sold</button>
+                        <button class="btn danger" data-status="archived">Archived - Expired - Unsold</button>
+                    </div>
                 </div>
                 <div class="button-row" id="agentActions" hidden>
                     <a class="btn muted" id="agentEditListingButton" href="listing-editor.html">Back to Edit</a>
                     <span class="help">Only the principal broker can publish this listing.</span>
                 </div>
             </section>
+            <section id="brokerCommentHistory" class="panel" hidden></section>
             <section id="reviewSummary" class="panel"></section>
         </main>
     </div>
@@ -56,6 +66,11 @@
         const brokerActions = document.getElementById('brokerActions');
         const agentActions = document.getElementById('agentActions');
         const reviewHelp = document.getElementById('reviewHelp');
+        const brokerComments = document.getElementById('brokerComments');
+        const commentHistory = document.getElementById('brokerCommentHistory');
+        const sendBackButton = document.getElementById('sendBackButton');
+        const publishButton = document.getElementById('publishButton');
+        let currentListing = null;
         document.getElementById('editLink').href = `listing-editor.html?id=${listingId || ''}`;
         document.getElementById('editListingButton').href = `listing-editor.html?id=${listingId || ''}`;
         document.getElementById('agentEditListingButton').href = `listing-editor.html?id=${listingId || ''}`;
@@ -78,6 +93,24 @@
             if (error) {
                 summary.innerHTML = `<div class="message error">${error.message}</div>`;
                 return;
+            }
+            currentListing = data;
+            const events = await AdminApp.getApprovalEvents(listingId);
+            const commentEvents = events.filter(event => event.notes);
+            commentHistory.hidden = !commentEvents.length;
+            if (commentEvents.length) {
+                commentHistory.innerHTML = `
+                    <h2>Broker Comments</h2>
+                    <div class="comment-list">
+                        ${commentEvents.map(event => `
+                            <article class="comment-item">
+                                <span class="status-pill">${event.event_type === 'published' ? 'Published' : 'Needs Edits'}</span>
+                                <p>${AdminApp.escapeHtml(event.notes)}</p>
+                                <p class="help">${new Date(event.created_at).toLocaleString()}</p>
+                            </article>
+                        `).join('')}
+                    </div>
+                `;
             }
             const photos = await AdminApp.getListingPhotos(listingId);
             const address = data.hide_address
@@ -123,13 +156,41 @@
             `;
         }
 
+        sendBackButton.addEventListener('click', async () => {
+            try {
+                sendBackButton.disabled = true;
+                const emailResult = await AdminApp.requestEdits(listingId, currentListing, brokerComments.value);
+                brokerComments.value = '';
+                message.innerHTML = emailResult && emailResult.sent === false
+                    ? '<div class="message">Listing sent back to the agent for edits. Configure RESEND_API_KEY in Supabase for the email to send automatically.</div>'
+                    : '<div class="message">Listing sent back to the agent for edits. An email was sent to the agent.</div>';
+                loadReview();
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            } finally {
+                sendBackButton.disabled = false;
+            }
+        });
+
+        publishButton.addEventListener('click', async () => {
+            try {
+                publishButton.disabled = true;
+                await AdminApp.approveAndPublish(listingId, brokerComments.value);
+                brokerComments.value = '';
+                message.innerHTML = '<div class="message">Listing approved and published. The submitting agent will see the published status.</div>';
+                loadReview();
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            } finally {
+                publishButton.disabled = false;
+            }
+        });
+
         document.querySelectorAll('[data-status]').forEach(button => {
             button.addEventListener('click', async () => {
                 try {
                     await AdminApp.updateStatus(listingId, button.dataset.status);
-                    message.innerHTML = button.dataset.status === 'published'
-                        ? '<div class="message">Listing approved and published. It is now eligible to show on the public listings page.</div>'
-                        : '<div class="message">Status updated.</div>';
+                    message.innerHTML = '<div class="message">Status updated.</div>';
                     loadReview();
                 } catch (error) {
                     message.innerHTML = `<div class="message error">${error.message}</div>`;

@@ -28,6 +28,7 @@
             </div>
 
             <div id="message"></div>
+            <section id="brokerCommentHistory" class="panel" hidden></section>
 
             <form id="listingForm" class="panel">
                 <div class="form-grid">
@@ -133,6 +134,7 @@
         const message = document.getElementById('message');
         const photoInput = document.getElementById('photos');
         const photoPreview = document.getElementById('photoPreview');
+        const commentHistory = document.getElementById('brokerCommentHistory');
         message.innerHTML = AdminApp.setupWarning();
         let isLoadingListing = true;
         let currentPhotos = [];
@@ -193,12 +195,33 @@
                     renderPhotoPreviews();
                     document.querySelector('.admin-header h1').textContent = 'Edit Listing';
                     message.innerHTML = `<div class="message">Editing: ${listing.title}</div>`;
+                    await renderBrokerComments(listing.id);
                 }
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
             } finally {
                 isLoadingListing = false;
             }
+        }
+
+        async function renderBrokerComments(listingId) {
+            const events = await AdminApp.getApprovalEvents(listingId);
+            const commentEvents = events.filter(event => event.notes);
+            commentHistory.hidden = !commentEvents.length;
+            if (!commentEvents.length) return;
+
+            commentHistory.innerHTML = `
+                <h2>Broker Comments</h2>
+                <div class="comment-list">
+                    ${commentEvents.map(event => `
+                        <article class="comment-item">
+                            <span class="status-pill">${event.event_type === 'published' ? 'Published' : 'Needs Edits'}</span>
+                            <p>${AdminApp.escapeHtml(event.notes)}</p>
+                            <p class="help">${new Date(event.created_at).toLocaleString()}</p>
+                        </article>
+                    `).join('')}
+                </div>
+            `;
         }
 
         let autosaveTimer;
