@@ -25,7 +25,7 @@ textarea { min-height: 160px; resize: vertical; }
 .help { color: #6c757d; font-size: .85rem; line-height: 1.6; margin-top: .5rem; }
 .status-pill { display: inline-flex; padding: .35rem .7rem; border-radius: 999px; background: rgba(92,200,200,.16); color: #1a1a2e; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .listing-table { width: 100%; border-collapse: collapse; }
-.listing-table th, .listing-table td { text-align: left; padding: 1rem; border-bottom: 1px solid #e5e7e9; vertical-align: top; }
+.listing-table th, .listing-table td { text-align: left; padding: 1rem; border-bottom: 1px solid #e5e7e9; vertical-align: middle; }
 .listing-table th { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: #6c757d; }
 .auth-page { min-height: 100vh; display: grid; place-items: center; padding: 2rem; background: #4f514f; }
 .auth-card { width: min(480px, 100%); background: #fff; padding: 2.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
