@@ -13,12 +13,13 @@ h1, h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; marg
 h1 { font-size: clamp(2rem, 4vw, 3.5rem); }
 .panel { background: #fff; padding: 2rem; box-shadow: 0 15px 40px rgba(0,0,0,.06); border-bottom: 3px solid #5CC8C8; margin-bottom: 2rem; }
 .button-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .85rem 1.25rem; border: 0; background: #5CC8C8; color: #1a1a2e; text-decoration: none; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; cursor: pointer; }
-.btn.secondary { background: transparent; border: 2px solid #5CC8C8; color: #4AB0B0; }
-.btn.danger { background: #6d3939; color: #fff; }
-.btn.muted { background: #e7e9eb; color: #1a1a2e; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .85rem 1.25rem; border: 2px solid #5CC8C8; background: transparent; color: #4AB0B0; text-decoration: none; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; cursor: pointer; transition: all .3s ease; }
+.btn.secondary, .btn.muted { background: transparent; border-color: #5CC8C8; color: #4AB0B0; }
+.btn.danger { background: transparent; border-color: #5CC8C8; color: #4AB0B0; }
+.btn:hover, .btn.secondary:hover, .btn.muted:hover, .btn.danger:hover { background: #4AB0B0; border-color: #4AB0B0; color: #1a1a2e; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(92, 200, 200, .3); }
+.btn:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
 .review-actions { margin-top: 1rem; }
-.management-actions { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7e9; }
+[hidden] { display: none !important; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
 .field.full { grid-column: 1 / -1; }
 label { display: block; font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }

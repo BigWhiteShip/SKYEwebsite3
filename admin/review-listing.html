@@ -6,7 +6,7 @@
     <title>Review Listing | SKYE Admin</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260623-approval-2">
+    <link rel="stylesheet" href="admin.css?v=20260624-buttons">
 </head>
 <body>
     <div class="admin-shell">
@@ -24,7 +24,7 @@
                     <p class="eyebrow">Broker Review</p>
                     <h1>Review Listing</h1>
                 </div>
-                <a class="btn secondary" id="editLink" href="listing-editor.html">Back to Edit</a>
+                <a class="btn secondary" id="editLink" href="listing-editor.html" hidden>Back to Edit</a>
             </div>
             <div id="message"></div>
             <section class="panel">
@@ -36,13 +36,7 @@
                     </div>
                     <div class="button-row review-actions">
                         <button class="btn secondary" type="button" id="sendBackButton">Send Back for Edits</button>
-                        <button class="btn" type="button" id="publishButton">Publish as Submitted</button>
-                    </div>
-                    <div class="button-row management-actions">
-                        <a class="btn muted" id="editListingButton" href="listing-editor.html">Back to Edit</a>
-                        <button class="btn secondary" data-status="unpublished">Unpublish</button>
-                        <button class="btn secondary" data-status="sold">Mark Sold</button>
-                        <button class="btn danger" data-status="archived">Archived - Expired - Unsold</button>
+                        <button class="btn" type="button" id="publishButton">Publish</button>
                     </div>
                 </div>
                 <div class="button-row" id="agentActions" hidden>
@@ -71,8 +65,8 @@
         const sendBackButton = document.getElementById('sendBackButton');
         const publishButton = document.getElementById('publishButton');
         let currentListing = null;
-        document.getElementById('editLink').href = `listing-editor.html?id=${listingId || ''}`;
-        document.getElementById('editListingButton').href = `listing-editor.html?id=${listingId || ''}`;
+        const editLink = document.getElementById('editLink');
+        editLink.href = `listing-editor.html?id=${listingId || ''}`;
         document.getElementById('agentEditListingButton').href = `listing-editor.html?id=${listingId || ''}`;
         message.innerHTML = AdminApp.setupWarning();
 
@@ -85,6 +79,7 @@
             const canApprove = AdminApp.isPrincipalBroker(profile);
             brokerActions.hidden = !canApprove;
             agentActions.hidden = canApprove;
+            editLink.hidden = canApprove;
             reviewHelp.textContent = canApprove
                 ? 'Review the private preview below. Approve & Publish makes this listing visible on the public listings page.'
                 : 'This is a private preview. The principal broker must approve and publish it before it appears on the public listings page.';
@@ -184,18 +179,6 @@
             } finally {
                 publishButton.disabled = false;
             }
-        });
-
-        document.querySelectorAll('[data-status]').forEach(button => {
-            button.addEventListener('click', async () => {
-                try {
-                    await AdminApp.updateStatus(listingId, button.dataset.status);
-                    message.innerHTML = '<div class="message">Status updated.</div>';
-                    loadReview();
-                } catch (error) {
-                    message.innerHTML = `<div class="message error">${error.message}</div>`;
-                }
-            });
         });
 
         loadReview();

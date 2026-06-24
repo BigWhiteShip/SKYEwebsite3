@@ -271,8 +271,9 @@
         .listing-cta {
             display: inline-block;
             padding: 1rem 2.5rem;
-            background: var(--teal);
-            color: var(--dark);
+            background: transparent;
+            border: 2px solid var(--teal);
+            color: var(--teal);
             text-decoration: none;
             font-weight: 600;
             letter-spacing: 0.1em;
@@ -283,6 +284,8 @@
 
         .listing-cta:hover {
             background: var(--teal-dark);
+            border-color: var(--teal-dark);
+            color: var(--dark);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(92, 200, 200, 0.3);
         }
