@@ -295,7 +295,7 @@ const AdminApp = (() => {
         if (!client || !listingId) return;
         const { error } = await client
             .from('listing_photos')
-            .update({ alt_text: altText || 'SKYE Real Estate Group property listing photo' })
+            .update({ alt_text: altText || 'SKYE Group Real Estate property listing photo' })
             .eq('listing_id', listingId);
 
         if (error) throw error;
@@ -335,7 +335,7 @@ const AdminApp = (() => {
                 listing_id: listingId,
                 storage_path: storagePath,
                 public_url: publicUrlData.publicUrl,
-                alt_text: altText || 'SKYE Real Estate Group property listing photo',
+                alt_text: altText || 'SKYE Group Real Estate property listing photo',
                 sort_order: sortOrder,
                 is_primary: existingPhotos.length === 0 && index === 0
             };
