@@ -69,6 +69,16 @@ const AdminApp = (() => {
         return String(source).trim().split(/\s+/)[0] || 'there';
     }
 
+    function normalizeListingStatus(status) {
+        const normalized = String(status || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+        const aliases = {
+            needs_edit: 'needs_edits',
+            needs_edits: 'needs_edits'
+        };
+
+        return aliases[normalized] || normalized;
+    }
+
     async function loadDashboard() {
         const root = document.getElementById('dashboardListings');
         if (!root) return;
@@ -414,16 +424,17 @@ const AdminApp = (() => {
         if (!client) throw new Error('Supabase is not configured.');
         const session = await SkyeListings.requireSession();
         const timestamp = new Date().toISOString();
-        const patch = { status };
-        if (status === 'published') {
+        const listingStatus = normalizeListingStatus(status);
+        const patch = { status: listingStatus };
+        if (listingStatus === 'published') {
             patch.approved_by = session.user.id;
             patch.approved_at = timestamp;
             patch.published_at = timestamp;
         }
-        if (status === 'sold') patch.sold_at = timestamp;
-        if (status === 'archived') patch.archived_at = timestamp;
-        if (status === 'pending_approval') patch.submitted_at = timestamp;
-        if (status === 'needs_edits') patch.published_at = null;
+        if (listingStatus === 'sold') patch.sold_at = timestamp;
+        if (listingStatus === 'archived') patch.archived_at = timestamp;
+        if (listingStatus === 'pending_approval') patch.submitted_at = timestamp;
+        if (listingStatus === 'needs_edits') patch.published_at = null;
 
         const { error } = await client.from('listings').update(patch).eq('id', id);
         if (error) throw error;
