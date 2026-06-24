@@ -87,6 +87,16 @@ const AdminApp = (() => {
         return SkyeListings.statusLabels[listing.status] || listing.status;
     }
 
+    function approvalEventLabel(event) {
+        const labels = {
+            agent_note: 'Agent Note',
+            changes_requested: 'Broker Comments',
+            published: 'Published'
+        };
+
+        return labels[event.event_type] || event.event_type;
+    }
+
     async function loadDashboard() {
         const root = document.getElementById('dashboardListings');
         if (!root) return;
@@ -537,6 +547,7 @@ const AdminApp = (() => {
         getCurrentProfile,
         isPrincipalBroker,
         escapeHtml,
+        approvalEventLabel,
         loadDashboard,
         loadListingForEdit,
         getListingPhotos,

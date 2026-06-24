@@ -6,7 +6,7 @@
     <title>Review Listing | SKYE Admin</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260624-photo-tools">
+    <link rel="stylesheet" href="admin.css?v=20260624-internal-notes">
 </head>
 <body>
     <div class="admin-shell">
@@ -51,7 +51,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260624-photo-tools"></script>
+    <script src="admin.js?v=20260624-internal-notes"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const listingId = params.get('id');
@@ -99,13 +99,13 @@
             commentHistory.hidden = !commentEvents.length;
             if (commentEvents.length) {
                 commentHistory.innerHTML = `
-                    <h2>Broker Comments</h2>
+                    <h2>Listing Notes</h2>
                     <div class="comment-list">
                         ${commentEvents.map(event => `
                             <article class="comment-item">
-                                <span class="status-pill">${event.event_type === 'published' ? 'Published' : 'Needs Edits'}</span>
+                                <span class="status-pill">${AdminApp.approvalEventLabel(event)}</span>
                                 <p>${AdminApp.escapeHtml(event.notes)}</p>
-                                <p class="help">${new Date(event.created_at).toLocaleString()}</p>
+                                <p class="help">${event.actor && event.actor.full_name ? AdminApp.escapeHtml(event.actor.full_name) + ' - ' : ''}${new Date(event.created_at).toLocaleString()}</p>
                             </article>
                         `).join('')}
                     </div>

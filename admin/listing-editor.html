@@ -6,7 +6,7 @@
     <title>Create Listing | SKYE Admin</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260624-photo-tools">
+    <link rel="stylesheet" href="admin.css?v=20260624-internal-notes">
 </head>
 <body>
     <div class="admin-shell">
@@ -29,6 +29,17 @@
 
             <div id="message"></div>
             <section id="brokerCommentHistory" class="panel" hidden></section>
+            <section id="agentNotesPanel" class="panel">
+                <h2>Notes for Principal Broker</h2>
+                <p class="help">Add internal notes to explain edits or context for this listing. These notes are visible only in the admin tool.</p>
+                <div class="field full">
+                    <label for="agentNote">Agent Note</label>
+                    <textarea id="agentNote" placeholder="Add a note for the principal broker."></textarea>
+                </div>
+                <div class="button-row note-actions">
+                    <button class="btn secondary" type="button" id="addAgentNote">Add Note</button>
+                </div>
+            </section>
 
             <form id="listingForm" class="panel">
                 <div class="form-grid">
@@ -128,17 +139,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260624-photo-tools"></script>
+    <script src="admin.js?v=20260624-internal-notes"></script>
     <script>
         const form = document.getElementById('listingForm');
         const message = document.getElementById('message');
         const photoInput = document.getElementById('photos');
         const photoPreview = document.getElementById('photoPreview');
         const commentHistory = document.getElementById('brokerCommentHistory');
+        const agentNote = document.getElementById('agentNote');
+        const addAgentNote = document.getElementById('addAgentNote');
         message.innerHTML = AdminApp.setupWarning();
         let isLoadingListing = true;
         let currentPhotos = [];
         let selectedPhotoFiles = [];
+        let currentListingStatus = 'draft';
+
+        function canSaveListingEdits(status) {
+            return ['draft', 'unpublished'].includes(status);
+        }
 
         function renderPhotoPreviews() {
             const savedCards = currentPhotos.map((photo, index) => `
@@ -228,6 +246,7 @@
 
         async function saveCurrentListing(status) {
             const id = await AdminApp.saveListing(form, status);
+            currentListingStatus = status;
             history.replaceState(null, '', `listing-editor.html?id=${id}`);
 
             if (form.elements.photo_alt_text) {
@@ -250,6 +269,7 @@
             try {
                 const listing = await AdminApp.loadListingForEdit(form);
                 if (listing) {
+                    currentListingStatus = listing.status || 'draft';
                     currentPhotos = listing.photos || [];
                     renderPhotoPreviews();
                     document.querySelector('.admin-header h1').textContent = 'Edit Listing';
@@ -270,18 +290,44 @@
             if (!commentEvents.length) return;
 
             commentHistory.innerHTML = `
-                <h2>Broker Comments</h2>
+                <h2>Listing Notes</h2>
                 <div class="comment-list">
                     ${commentEvents.map(event => `
                         <article class="comment-item">
-                            <span class="status-pill">${event.event_type === 'published' ? 'Published' : 'Needs Edits'}</span>
+                            <span class="status-pill">${AdminApp.approvalEventLabel(event)}</span>
                             <p>${AdminApp.escapeHtml(event.notes)}</p>
-                            <p class="help">${new Date(event.created_at).toLocaleString()}</p>
+                            <p class="help">${event.actor && event.actor.full_name ? AdminApp.escapeHtml(event.actor.full_name) + ' - ' : ''}${new Date(event.created_at).toLocaleString()}</p>
                         </article>
                     `).join('')}
                 </div>
             `;
         }
+
+        addAgentNote.addEventListener('click', async () => {
+            const note = agentNote.value.trim();
+            if (!note) {
+                message.innerHTML = '<div class="message error">Add a note before saving it.</div>';
+                return;
+            }
+
+            if (!form.reportValidity()) return;
+
+            try {
+                addAgentNote.disabled = true;
+                const existingId = new URLSearchParams(window.location.search).get('id');
+                const id = existingId && canSaveListingEdits(currentListingStatus)
+                    ? await saveCurrentListing(currentListingStatus)
+                    : existingId || await saveCurrentListing('draft');
+                await AdminApp.createApprovalEvent(id, 'agent_note', note);
+                agentNote.value = '';
+                await renderBrokerComments(id);
+                message.innerHTML = '<div class="message">Note added for the principal broker.</div>';
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            } finally {
+                addAgentNote.disabled = false;
+            }
+        });
 
         let autosaveTimer;
         form.addEventListener('input', () => {
@@ -332,6 +378,11 @@
         document.getElementById('submitApproval').addEventListener('click', async () => {
             try {
                 const id = await saveCurrentListing('pending_approval');
+                const note = agentNote.value.trim();
+                if (note) {
+                    await AdminApp.createApprovalEvent(id, 'agent_note', note);
+                    agentNote.value = '';
+                }
                 message.innerHTML = '<div class="message">Submitted to principal broker for approval.</div>';
                 window.location.href = `review-listing.html?id=${id}`;
             } catch (error) {
