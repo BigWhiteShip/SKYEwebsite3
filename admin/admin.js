@@ -415,20 +415,33 @@ const AdminApp = (() => {
         const subject = 'Please review and update your listing';
         const textBody = `Hello ${agentFirstName(listing)}, I have reviewed the listing.  Please take a look at my comments and re-submit.`;
 
-        const { data, error } = await client.functions.invoke('request-listing-edits', {
-            body: {
-                listingId: listing.id,
-                listingTitle: listing.title,
-                agentEmail: listing.agent_email,
-                agentFirstName: agentFirstName(listing),
-                comments,
-                subject,
-                textBody
-            }
-        });
+        try {
+            const { data, error } = await client.functions.invoke('request-listing-edits', {
+                body: {
+                    listingId: listing.id,
+                    listingTitle: listing.title,
+                    agentEmail: listing.agent_email,
+                    agentFirstName: agentFirstName(listing),
+                    comments,
+                    subject,
+                    textBody
+                }
+            });
 
-        if (error) throw error;
-        return data;
+            if (error) {
+                return {
+                    sent: false,
+                    reason: error.message || 'The request-listing-edits Edge Function is not reachable.'
+                };
+            }
+
+            return data;
+        } catch (error) {
+            return {
+                sent: false,
+                reason: error.message || 'The request-listing-edits Edge Function is not reachable.'
+            };
+        }
     }
 
     async function requestEdits(id, listing, comments) {

@@ -51,7 +51,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260624-edit-status"></script>
+    <script src="admin.js?v=20260624-email-warning"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const listingId = params.get('id');
@@ -161,7 +161,7 @@
                 const emailResult = await AdminApp.requestEdits(listingId, currentListing, brokerComments.value);
                 brokerComments.value = '';
                 message.innerHTML = emailResult && emailResult.sent === false
-                    ? '<div class="message">Listing sent back to the agent for edits. Configure RESEND_API_KEY in Supabase for the email to send automatically.</div>'
+                    ? '<div class="message">Listing sent back to the agent for edits. The email could not be sent automatically because the Edge Function is not reachable.</div>'
                     : '<div class="message">Listing sent back to the agent for edits. An email was sent to the agent.</div>';
                 loadReview();
             } catch (error) {
