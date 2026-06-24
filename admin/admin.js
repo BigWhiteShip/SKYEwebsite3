@@ -343,6 +343,56 @@ const AdminApp = (() => {
         return uploaded;
     }
 
+    async function deleteListingPhoto(photo) {
+        if (!client || !photo || !photo.id) return;
+
+        const { error: deleteRecordError } = await client
+            .from('listing_photos')
+            .delete()
+            .eq('id', photo.id);
+
+        if (deleteRecordError) throw deleteRecordError;
+
+        if (photo.storage_path) {
+            const { error: storageError } = await client.storage
+                .from('listing-photos')
+                .remove([photo.storage_path]);
+
+            if (storageError) throw storageError;
+        }
+    }
+
+    async function savePhotoOrder(listingId, photos) {
+        if (!client || !listingId || !photos) return [];
+        const orderedPhotos = photos.map((photo, index) => ({
+            ...photo,
+            sort_order: index,
+            is_primary: index === 0
+        }));
+
+        for (const [index, photo] of orderedPhotos.entries()) {
+            const { error } = await client
+                .from('listing_photos')
+                .update({ sort_order: 1000 + index, is_primary: false })
+                .eq('id', photo.id)
+                .eq('listing_id', listingId);
+
+            if (error) throw error;
+        }
+
+        for (const [index, photo] of orderedPhotos.entries()) {
+            const { error } = await client
+                .from('listing_photos')
+                .update({ sort_order: index, is_primary: index === 0 })
+                .eq('id', photo.id)
+                .eq('listing_id', listingId);
+
+            if (error) throw error;
+        }
+
+        return orderedPhotos;
+    }
+
     async function saveListing(form, status = 'draft') {
         if (!client) throw new Error('Supabase is not configured.');
         const session = await SkyeListings.requireSession();
@@ -496,6 +546,8 @@ const AdminApp = (() => {
         approveAndPublish,
         savePhotoAltText,
         saveListingPhotos,
+        deleteListingPhoto,
+        savePhotoOrder,
         maxListingPhotos,
         saveListing,
         updateStatus

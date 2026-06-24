@@ -47,6 +47,12 @@ textarea { min-height: 160px; resize: vertical; }
 .photo-preview-meta { padding: .85rem; }
 .photo-preview-title { margin: 0 0 .35rem; color: #1a1a2e; font-weight: 700; font-size: .82rem; }
 .photo-preview-name { margin: 0; color: #6c757d; font-size: .78rem; line-height: 1.4; overflow-wrap: anywhere; }
+.photo-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+.photo-action { border: 1px solid #5CC8C8; background: transparent; color: #4AB0B0; padding: .45rem .55rem; font: inherit; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: all .2s ease; }
+.photo-action:hover { background: #4AB0B0; border-color: #4AB0B0; color: #1a1a2e; }
+.photo-action.danger { border-color: #9a5a5a; color: #7a3d3d; }
+.photo-action.danger:hover { background: #7a3d3d; border-color: #7a3d3d; color: #fff; }
+.photo-action:disabled { opacity: .45; cursor: not-allowed; }
 .preview-shell { background: #fff; overflow: hidden; }
 .preview-hero { min-height: 260px; background: #4f514f; color: rgba(255,255,255,.8); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.5rem, 1vw, 1rem); place-items: stretch; text-align: center; padding: clamp(.5rem, 1vw, 1rem); }
 .preview-hero img { width: 100%; height: clamp(180px, 22vw, 300px); object-fit: cover; display: block; background: #fff; }

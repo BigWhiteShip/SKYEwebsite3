@@ -6,7 +6,7 @@
     <title>Create Listing | SKYE Admin</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260624-buttons">
+    <link rel="stylesheet" href="admin.css?v=20260624-photo-tools">
 </head>
 <body>
     <div class="admin-shell">
@@ -108,7 +108,7 @@
                     <div class="field full">
                         <label for="photos">Photos</label>
                         <input id="photos" name="photos" type="file" accept="image/*" multiple>
-                        <p class="help">Maximum 4 photos. The first photo is treated as the primary listing image.</p>
+                        <p class="help">Maximum 4 photos. Use the arrow buttons to set the public display order. The first photo is treated as the primary listing image.</p>
                         <div class="photo-list" id="photoPreview"></div>
                     </div>
                     <div class="field full">
@@ -128,7 +128,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260624-email-warning"></script>
+    <script src="admin.js?v=20260624-photo-tools"></script>
     <script>
         const form = document.getElementById('listingForm');
         const message = document.getElementById('message');
@@ -142,11 +142,16 @@
 
         function renderPhotoPreviews() {
             const savedCards = currentPhotos.map((photo, index) => `
-                <figure class="photo-preview-card">
+                <figure class="photo-preview-card" data-photo-index="${index}">
                     <img src="${photo.public_url}" alt="${photo.alt_text || `Saved listing photo ${index + 1}`}">
                     <figcaption class="photo-preview-meta">
-                        <p class="photo-preview-title">${photo.is_primary ? 'Primary Photo' : `Saved Photo ${index + 1}`}</p>
+                        <p class="photo-preview-title">${index === 0 ? 'Primary Photo' : `Saved Photo ${index + 1}`}</p>
                         <p class="photo-preview-name">${photo.alt_text || photo.storage_path}</p>
+                        <div class="photo-actions">
+                            <button class="photo-action" type="button" data-photo-action="move-left" data-photo-index="${index}" ${index === 0 ? 'disabled' : ''}>Move Left</button>
+                            <button class="photo-action" type="button" data-photo-action="move-right" data-photo-index="${index}" ${index === currentPhotos.length - 1 ? 'disabled' : ''}>Move Right</button>
+                            <button class="photo-action danger" type="button" data-photo-action="delete" data-photo-index="${index}">Delete</button>
+                        </div>
                     </figcaption>
                 </figure>
             `);
@@ -155,11 +160,14 @@
                 const imageUrl = URL.createObjectURL(file);
                 const label = currentPhotos.length === 0 && index === 0 ? 'Primary Photo' : `New Photo ${currentPhotos.length + index + 1}`;
                 return `
-                    <figure class="photo-preview-card pending">
+                    <figure class="photo-preview-card pending" data-pending-index="${index}">
                         <img src="${imageUrl}" alt="Selected listing photo preview ${index + 1}">
                         <figcaption class="photo-preview-meta">
                             <p class="photo-preview-title">${label}</p>
                             <p class="photo-preview-name">${file.name}</p>
+                            <div class="photo-actions">
+                                <button class="photo-action danger" type="button" data-pending-action="remove" data-pending-index="${index}">Remove</button>
+                            </div>
                         </figcaption>
                     </figure>
                 `;
@@ -167,6 +175,56 @@
 
             photoPreview.innerHTML = [...savedCards, ...pendingCards].join('');
         }
+
+        async function refreshPhotoOrder(messageText = 'Photo order updated.') {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) return;
+            currentPhotos = await AdminApp.savePhotoOrder(id, currentPhotos);
+            renderPhotoPreviews();
+            message.innerHTML = `<div class="message">${messageText}</div>`;
+        }
+
+        photoPreview.addEventListener('click', async event => {
+            const photoActionButton = event.target.closest('[data-photo-action]');
+            const pendingActionButton = event.target.closest('[data-pending-action]');
+
+            if (pendingActionButton) {
+                const index = Number(pendingActionButton.dataset.pendingIndex);
+                selectedPhotoFiles.splice(index, 1);
+                photoInput.value = '';
+                renderPhotoPreviews();
+                return;
+            }
+
+            if (!photoActionButton) return;
+
+            const index = Number(photoActionButton.dataset.photoIndex);
+            const action = photoActionButton.dataset.photoAction;
+
+            try {
+                if (action === 'delete') {
+                    const photo = currentPhotos[index];
+                    await AdminApp.deleteListingPhoto(photo);
+                    currentPhotos.splice(index, 1);
+                    if (currentPhotos.length) await refreshPhotoOrder('Photo deleted.');
+                    renderPhotoPreviews();
+                    message.innerHTML = '<div class="message">Photo deleted.</div>';
+                    return;
+                }
+
+                if (action === 'move-left' && index > 0) {
+                    [currentPhotos[index - 1], currentPhotos[index]] = [currentPhotos[index], currentPhotos[index - 1]];
+                    await refreshPhotoOrder();
+                }
+
+                if (action === 'move-right' && index < currentPhotos.length - 1) {
+                    [currentPhotos[index], currentPhotos[index + 1]] = [currentPhotos[index + 1], currentPhotos[index]];
+                    await refreshPhotoOrder();
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error">${error.message}</div>`;
+            }
+        });
 
         async function saveCurrentListing(status) {
             const id = await AdminApp.saveListing(form, status);
@@ -179,6 +237,7 @@
             if (selectedPhotoFiles.length) {
                 const uploadedPhotos = await AdminApp.saveListingPhotos(id, selectedPhotoFiles, form.elements.photo_alt_text.value);
                 currentPhotos = [...currentPhotos, ...uploadedPhotos].sort((a, b) => a.sort_order - b.sort_order);
+                currentPhotos = await AdminApp.savePhotoOrder(id, currentPhotos);
                 selectedPhotoFiles = [];
                 photoInput.value = '';
                 renderPhotoPreviews();
