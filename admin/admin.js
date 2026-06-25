@@ -1,6 +1,6 @@
 const AdminApp = (() => {
     const client = SkyeListings.client;
-    const maxListingPhotos = 4;
+    const maxListingPhotos = 6;
 
     function setupWarning() {
         if (SkyeListings.isConfigured) return '';
@@ -21,7 +21,7 @@ const AdminApp = (() => {
 
     async function resetPassword(email) {
         if (!client) throw new Error('Supabase is not configured.');
-        const redirectTo = `${window.location.origin}${window.location.pathname.replace('/admin/login.html', '/admin/set-password.html')}`;
+        const redirectTo = 'https://skyegroup.realestate/admin/set-password.html';
         const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
         if (error) throw error;
     }

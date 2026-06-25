@@ -29,7 +29,7 @@ For an existing Supabase database, run `supabase/broker-review-workflow-update.s
 
 If uploads fail because of storage permissions, run `supabase/storage-policies.sql` in the Supabase SQL Editor.
 
-The admin tool currently enforces a maximum of 4 listing photos.
+The admin tool currently enforces a maximum of 6 listing photos.
 
 ## 4. Authentication Settings
 

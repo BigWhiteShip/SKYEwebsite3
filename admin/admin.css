@@ -55,7 +55,7 @@ textarea { min-height: 160px; resize: vertical; }
 .photo-action.danger:hover { background: #7a3d3d; border-color: #7a3d3d; color: #fff; }
 .photo-action:disabled { opacity: .45; cursor: not-allowed; }
 .preview-shell { background: #fff; overflow: hidden; }
-.preview-hero { min-height: 260px; background: #4f514f; color: rgba(255,255,255,.8); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.5rem, 1vw, 1rem); place-items: stretch; text-align: center; padding: clamp(.5rem, 1vw, 1rem); }
+.preview-hero { min-height: 260px; background: #4f514f; color: rgba(255,255,255,.8); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(.5rem, 1vw, 1rem); place-items: stretch; text-align: center; padding: clamp(.5rem, 1vw, 1rem); }
 .preview-hero img { width: 100%; height: clamp(180px, 22vw, 300px); object-fit: cover; display: block; background: #fff; }
 .preview-hero span { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.5rem, 7vw, 5rem); letter-spacing: .12em; }
 .preview-body { display: grid; grid-template-columns: 1fr 320px; gap: 3rem; padding: 3rem; }
