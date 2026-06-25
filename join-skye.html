@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join SKYE | SKYE Group Real Estate</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Montserrat, Arial, sans-serif; color: #1a1a2e; background: #f8f9fa; }
+        nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 1rem 3rem; background: rgba(26,26,46,.95); box-shadow: 0 2px 20px rgba(0,0,0,.25); }
+        .nav-logo { height: 50px; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; }
+        .nav-links a { color: #fff; text-decoration: none; font-size: .8rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: #5CC8C8; }
+        .hero { min-height: 78vh; background: linear-gradient(rgba(26,26,46,.45), rgba(26,26,46,.68)), url('images/hero-background.png') center/cover; color: #fff; display: flex; align-items: center; padding: 8rem 2rem 5rem; }
+        .hero-inner { width: min(980px, 100%); margin: 0 auto; }
+        .eyebrow { color: #5CC8C8; font-size: .75rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; }
+        h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; margin: 0; }
+        h1 { font-size: clamp(3rem, 8vw, 6.5rem); line-height: .95; max-width: 780px; }
+        .hero p { max-width: 680px; color: rgba(255,255,255,.84); font-size: 1.15rem; line-height: 1.8; margin: 1.5rem 0 0; }
+        .section { max-width: 1120px; margin: 0 auto; padding: 5rem 2rem; }
+        .intro { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+        .intro h2, .cta h2 { font-size: clamp(2.2rem, 5vw, 4rem); }
+        .intro p, .feature p, .cta p { color: #6c757d; line-height: 1.85; }
+        .feature-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+        .feature { background: #fff; padding: 2rem; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); }
+        .feature h3 { font-size: 1.6rem; margin-bottom: 1rem; }
+        .cta { background: #fff; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); padding: 3rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
+        .cta a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 1rem 2rem; border: 2px solid #5CC8C8; color: #4AB0B0; text-decoration: none; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: .8rem; transition: all .3s ease; white-space: nowrap; }
+        .cta a:hover { background: #4AB0B0; border-color: #4AB0B0; color: #1a1a2e; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(92,200,200,.3); }
+        footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        footer a { color: rgba(255,255,255,.86); text-decoration: none; margin-left: .75rem; }
+        footer a:hover { color: #5CC8C8; }
+        @media (max-width: 900px) { nav { padding: 1rem 1.25rem; align-items: flex-start; } .nav-links { flex-wrap: wrap; gap: 1rem; justify-content: flex-end; } .intro, .cta { grid-template-columns: 1fr; } .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 620px) { .feature-grid { grid-template-columns: 1fr; } .cta { padding: 2rem; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="images/logo.png" alt="SKYE Real Estate Group" class="nav-logo"></a>
+        <ul class="nav-links">
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="current-listings.html#properties">For Sale</a></li>
+            <li><a href="sold-listings.html">Sold</a></li>
+            <li><a class="active" href="agents.html">Agents</a></li>
+            <li><a href="company-story.html">About Us</a></li>
+        </ul>
+    </nav>
+    <header class="hero">
+        <div class="hero-inner">
+            <p class="eyebrow">Join SKYE</p>
+            <h1>Grow With A Brokerage Built For Careful Work</h1>
+            <p>SKYE Group Real Estate is designed for agents who value thoughtful support, polished presentation, and a relationship-first client experience.</p>
+        </div>
+    </header>
+    <main>
+        <section class="section intro">
+            <div>
+                <p class="eyebrow">Why Join Us</p>
+                <h2>A Clearer Place To Build</h2>
+            </div>
+            <p>Our agents deserve practical tools, accessible leadership, and a brokerage culture that treats details as part of the service. SKYE brings together listing support, brand consistency, collaborative review, and a calm standard of excellence.</p>
+        </section>
+        <section class="section">
+            <div class="feature-grid">
+                <article class="feature">
+                    <h3>Broker Support</h3>
+                    <p>Responsive review, clear notes, and guidance designed to keep listings and transactions moving with confidence.</p>
+                </article>
+                <article class="feature">
+                    <h3>Listing Tools</h3>
+                    <p>Admin tools for submitting listings, managing photos, tracking revisions, and keeping approval history documented.</p>
+                </article>
+                <article class="feature">
+                    <h3>Brand Standards</h3>
+                    <p>A refined public presence that helps agents present properties and service with consistency.</p>
+                </article>
+                <article class="feature">
+                    <h3>Thoughtful Growth</h3>
+                    <p>A focused brokerage environment for agents who want to grow without losing personal attention.</p>
+                </article>
+            </div>
+        </section>
+        <section class="section">
+            <div class="cta">
+                <div>
+                    <p class="eyebrow">Start A Conversation</p>
+                    <h2>Curious About Joining SKYE?</h2>
+                    <p>Reach out to Amber for a confidential conversation about fit, support, and next steps.</p>
+                </div>
+                <a href="mailto:amber.krisky@skyegroup.realestate?subject=Joining%20SKYE%20Group%20Real%20Estate">Contact Amber</a>
+            </div>
+        </section>
+    </main>
+    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved. <a href="sitemap.html">Sitemap</a></footer>
+</body>
+</html>

@@ -69,6 +69,11 @@ const AdminApp = (() => {
         return String(source).trim().split(/\s+/)[0] || 'there';
     }
 
+    function firstNameFromProfile(profile, fallback = 'there') {
+        const source = profile && (profile.full_name || profile.email);
+        return String(source || fallback).trim().split(/\s+/)[0] || fallback;
+    }
+
     function normalizeListingStatus(status) {
         const normalized = String(status || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
         const aliases = {
@@ -470,18 +475,40 @@ const AdminApp = (() => {
         return data;
     }
 
-    async function sendEditRequestEmail(listing, comments) {
+    async function getListingSubmitterProfile(listing) {
+        if (!client || !listing || !listing.created_by) return null;
+        const { data, error } = await client
+            .from('profiles')
+            .select('id,email,full_name')
+            .eq('id', listing.created_by)
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async function sendEditRequestEmail(listing, comments, recipientProfile) {
         if (!client || !listing) return null;
         const subject = 'Please review and update your listing';
-        const textBody = `Hello ${agentFirstName(listing)}, I have reviewed the listing.  Please take a look at my comments and re-submit.`;
+        const recipientEmail = recipientProfile && recipientProfile.email;
+        const recipientFirstName = firstNameFromProfile(recipientProfile, agentFirstName(listing));
+
+        if (!recipientEmail) {
+            return {
+                sent: false,
+                reason: 'The submitting agent profile does not have an email address.'
+            };
+        }
+
+        const textBody = `Hello ${recipientFirstName}, I have reviewed the listing.  Please take a look at my comments and re-submit.`;
 
         try {
             const { data, error } = await client.functions.invoke('request-listing-edits', {
                 body: {
                     listingId: listing.id,
                     listingTitle: listing.title,
-                    agentEmail: listing.agent_email,
-                    agentFirstName: agentFirstName(listing),
+                    agentEmail: recipientEmail,
+                    agentFirstName: recipientFirstName,
                     comments,
                     subject,
                     textBody
@@ -510,7 +537,8 @@ const AdminApp = (() => {
 
         await updateStatus(id, 'unpublished');
         await createApprovalEvent(id, 'changes_requested', notes);
-        return sendEditRequestEmail({ ...listing, id }, notes);
+        const recipientProfile = await getListingSubmitterProfile(listing);
+        return sendEditRequestEmail({ ...listing, id }, notes, recipientProfile);
     }
 
     async function approveAndPublish(id, comments = '') {
