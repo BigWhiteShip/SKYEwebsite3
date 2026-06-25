@@ -31,6 +31,8 @@
         .section-label { font-size: .75rem; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: #5CC8C8; margin: 0 0 1rem; }
         .listing-panel { background: white; padding: 4rem 3rem; text-align: center; border-bottom: 3px solid #5CC8C8; }
         footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        footer a { color: rgba(255,255,255,.86); text-decoration: none; margin-left: .75rem; }
+        footer a:hover { color: #5CC8C8; }
         @media (max-width: 800px) { nav { padding: 1rem 1.5rem; } .nav-links { gap: 1rem; } .property-gallery { grid-template-columns: 1fr; } .property-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -45,7 +47,7 @@
         </ul>
     </nav>
     <section class="property-shell" id="propertyDetail"></section>
-    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved.</footer>
+    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved. <a href="sitemap.html">Sitemap</a></footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/listings-api.js"></script>

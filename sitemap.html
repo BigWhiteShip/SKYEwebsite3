@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap | SKYE Group Real Estate</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Montserrat, Arial, sans-serif; color: #1a1a2e; background: #f8f9fa; }
+        nav { background: #4f514f; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { width: 150px; background: rgba(255,255,255,.95); padding: .6rem; }
+        .nav-links { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
+        .nav-links a { color: rgba(255,255,255,.86); text-decoration: none; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+        .nav-links a:hover { color: #5CC8C8; }
+        .hero { padding: 5rem 2rem 3rem; text-align: center; }
+        .eyebrow { color: #4AB0B0; text-transform: uppercase; letter-spacing: .3em; font-size: .75rem; font-weight: 700; margin-bottom: 1rem; }
+        h1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 400; margin: 0; }
+        main { max-width: 920px; margin: 0 auto 5rem; padding: 0 2rem; }
+        .sitemap-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding: 0; margin: 0; list-style: none; }
+        .sitemap-list a { display: block; background: #fff; border-bottom: 3px solid #5CC8C8; box-shadow: 0 15px 40px rgba(0,0,0,.06); padding: 1.5rem; color: #1a1a2e; text-decoration: none; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: all .3s ease; }
+        .sitemap-list a:hover { color: #4AB0B0; transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0,0,0,.09); }
+        footer { padding: 1.5rem 2rem; background: #4f514f; color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        footer a { color: rgba(255,255,255,.86); text-decoration: none; margin-left: .75rem; }
+        footer a:hover { color: #5CC8C8; }
+        @media (max-width: 760px) {
+            nav { display: grid; gap: 1rem; justify-items: center; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+            .sitemap-list { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="images/logo.png" alt="SKYE Group Real Estate" class="nav-logo"></a>
+        <ul class="nav-links">
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="current-listings.html#properties">Properties</a></li>
+            <li><a href="sold-listings.html">Sold</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <header class="hero">
+        <p class="eyebrow">Site Index</p>
+        <h1>Sitemap</h1>
+    </header>
+    <main>
+        <ul class="sitemap-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="company-story.html">Company Story</a></li>
+            <li><a href="values.html">Values</a></li>
+            <li><a href="team.html">Team</a></li>
+            <li><a href="amber-krisky.html">Amber Krisky</a></li>
+            <li><a href="current-listings.html">Current Listings</a></li>
+            <li><a href="sold-listings.html">Sold Listings</a></li>
+        </ul>
+    </main>
+    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved. <a href="sitemap.html">Sitemap</a></footer>
+</body>
+</html>

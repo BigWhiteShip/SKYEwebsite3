@@ -47,7 +47,7 @@
         .pagination { display: flex; justify-content: center; gap: .75rem; margin-top: 3rem; }
         .page-link { display: grid; place-items: center; width: 42px; height: 42px; color: var(--dark); text-decoration: none; background: var(--white); border: 1px solid rgba(0,0,0,.08); }
         .page-link.active { background: var(--teal); border-color: var(--teal); }
-        footer { padding: 1.5rem 2rem; background: var(--brand-bg); color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; }
+        footer { padding: 1.5rem 2rem; background: var(--brand-bg); color: rgba(255,255,255,.7); text-align: center; font-size: .8rem; letter-spacing: .05em; } footer a { color: rgba(255,255,255,.86); text-decoration: none; margin-left: .75rem; } footer a:hover { color: var(--teal); }
         @media (max-width: 768px) { nav { padding: 1rem 1.5rem; } .nav-links { gap: 1rem; } .listing-grid { grid-template-columns: 1fr; } .listing-panel { padding: 3rem 1.5rem; } }
     </style>
 </head>
@@ -85,7 +85,7 @@
         </div>
     </section>
 
-    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved.</footer>
+    <footer>&copy; 2026 SKYE Group Real Estate. All rights reserved. <a href="sitemap.html">Sitemap</a></footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/listings-api.js"></script>

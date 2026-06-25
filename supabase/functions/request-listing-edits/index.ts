@@ -63,7 +63,15 @@ serve(async (req) => {
   const result = await response.json()
 
   if (!response.ok) {
-    return Response.json({ ok: false, sent: false, error: result }, { status: response.status, headers: corsHeaders })
+    return Response.json({
+      ok: true,
+      sent: false,
+      reason: result?.message ?? 'Resend could not send the email.',
+      resendError: result,
+      listingId,
+      listingTitle,
+      comments
+    }, { headers: corsHeaders })
   }
 
   return Response.json({
