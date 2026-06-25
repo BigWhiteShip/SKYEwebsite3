@@ -34,6 +34,9 @@ textarea { min-height: 160px; resize: vertical; }
 .auth-page { min-height: 100vh; display: grid; place-items: center; padding: 2rem; background: #4f514f; }
 .auth-card { width: min(480px, 100%); background: #fff; padding: 2.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
 .auth-logo { width: 100%; margin-bottom: 2rem; }
+.auth-security { border: 1px solid #d9dde1; border-left: 4px solid #5CC8C8; padding: 1rem; margin: 1.25rem 0; color: #1a1a2e; line-height: 1.6; background: #f8f9fa; }
+.auth-security strong, .auth-security span { display: block; }
+.auth-security span { color: #6c757d; font-size: .9rem; margin-top: .35rem; }
 .message { padding: 1rem; margin: 1rem 0; background: #edf7f7; color: #1a1a2e; line-height: 1.6; }
 .message.error { background: #f7eded; }
 .comment-list { display: grid; gap: 1rem; margin-top: 1.5rem; }

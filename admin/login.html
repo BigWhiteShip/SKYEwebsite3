@@ -4,33 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow, noarchive">
-    <title>SKYE Admin Login</title>
+    <meta name="description" content="Private SKYE Group Real Estate admin portal for authorized agents.">
+    <link rel="canonical" href="https://skyegroup.realestate/admin/login.html">
+    <title>SKYE Agent Admin Portal</title>
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=20260625-admin-safety">
+    <link rel="stylesheet" href="admin.css?v=20260625-phishing-review">
 </head>
 <body class="auth-page">
     <main class="auth-card">
         <img src="../images/logo.png" alt="SKYE Real Estate Group" class="auth-logo">
-        <p class="eyebrow">Admin</p>
-        <h1>Sign In</h1>
+        <p class="eyebrow">SKYE Group Real Estate</p>
+        <h1>Agent Admin Portal</h1>
+        <div class="auth-security">
+            <strong>Private access for authorized SKYE agents only.</strong>
+            <span>Use this page only at skyegroup.realestate. We will never ask for banking, Social Security, or client payment information here.</span>
+        </div>
         <div id="message"></div>
         <form id="loginForm">
-            <label for="email">Username / Email</label>
-            <input id="email" name="email" type="email" placeholder="name@skyegroup.realestate" required>
+            <label for="email">SKYE Agent Email</label>
+            <input id="email" name="email" type="email" placeholder="name@skyegroup.realestate" autocomplete="username" required>
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
             <div class="button-row" style="margin-top: 1.5rem;">
-                <button class="btn" type="submit">Log In</button>
-                <button class="btn secondary" type="button" id="forgotPassword">Forgot Password</button>
+                <button class="btn" type="submit">Sign In to SKYE Admin</button>
+                <button class="btn secondary" type="button" id="forgotPassword">Send Password Reset</button>
             </div>
-            <p class="help">Forgot username? Contact the principal broker. Usernames use the agent email format: name@skyegroup.realestate.</p>
+            <p class="help">Need access or unsure which email to use? Contact the principal broker directly before signing in.</p>
         </form>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260625-admin-safety"></script>
+    <script src="admin.js?v=20260625-phishing-review"></script>
     <script>
         const message = document.getElementById('message');
         message.innerHTML = AdminApp.setupWarning();
