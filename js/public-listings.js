@@ -3,6 +3,21 @@ function primaryPhoto(listing) {
     return photos.find(photo => photo.is_primary) || photos[0];
 }
 
+function escapeAttribute(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function escapeText(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function renderListingCard(listing) {
     const photo = primaryPhoto(listing);
     const photoMarkup = photo
@@ -98,6 +113,8 @@ async function loadPropertyDetail() {
     }
 
     const listing = result.data;
+    const propertyAddress = SkyeListings.displayAddress(listing);
+    const contactMessage = `I'm interested in the property at ${propertyAddress}`;
     const photos = Array.isArray(listing.photos) ? listing.photos : [];
     const gallery = photos.length
         ? photos.map(photo => `<img src="${photo.url}" alt="${photo.alt_text}">`).join('')
@@ -109,7 +126,7 @@ async function loadPropertyDetail() {
             <main>
                 <p class="listing-price">${SkyeListings.formatMoney(listing.price)}</p>
                 <h1>${listing.title}</h1>
-                <p class="listing-address">${SkyeListings.displayAddress(listing)}</p>
+                <p class="listing-address">${propertyAddress}</p>
                 <div class="listing-stats detail-stats">
                     <span>${listing.bedrooms} Beds</span>
                     <span>${listing.bathrooms} Baths</span>
@@ -126,7 +143,50 @@ async function loadPropertyDetail() {
                 <a href="tel:${listing.agent_office_phone}">Office: ${listing.agent_office_phone}</a>
                 <a href="tel:${listing.agent_mobile_phone}">Mobile: ${listing.agent_mobile_phone}</a>
                 <a href="mailto:${listing.agent_email}">${listing.agent_email}</a>
+                <form class="property-contact-form" id="listingContactForm" data-listing-slug="${escapeAttribute(listing.slug)}" data-property-address="${escapeAttribute(propertyAddress)}">
+                    <h3>Let's get in touch</h3>
+                    <label class="contact-field">
+                        <span>First Name</span>
+                        <input name="firstName" autocomplete="given-name" required>
+                    </label>
+                    <label class="contact-field">
+                        <span>Last Name</span>
+                        <input name="lastName" autocomplete="family-name" required>
+                    </label>
+                    <label class="contact-field">
+                        <span>Email Address</span>
+                        <input name="email" type="email" autocomplete="email" required>
+                    </label>
+                    <label class="contact-field">
+                        <span>Phone Number (Optional)</span>
+                        <input name="phone" type="tel" autocomplete="tel">
+                    </label>
+                    <label class="contact-field">
+                        <span class="contact-message-label">Message (Optional)</span>
+                        <textarea name="message">${escapeText(contactMessage)}</textarea>
+                    </label>
+                    <label class="contact-honeypot">
+                        Website
+                        <input name="website" tabindex="-1" autocomplete="off">
+                    </label>
+                    <label class="captcha-check">
+                        <input name="captchaConfirmed" type="checkbox" required>
+                        <span>I am not a robot.</span>
+                    </label>
+                    <p class="contact-status" id="contactStatus" aria-live="polite"></p>
+                    <button class="contact-submit" type="submit">
+                        <span>Send Message</span>
+                        <span class="contact-arrow" aria-hidden="true">&rarr;</span>
+                    </button>
+                    <p class="contact-fine-print">
+                        By clicking SEND MESSAGE, I agree a SKYE Group Real Estate agent may contact me about real estate services.
+                    </p>
+                </form>
             </aside>
         </div>
     `;
+
+    if (window.SkyeContactForm) {
+        window.SkyeContactForm.init(document.getElementById('listingContactForm'));
+    }
 }
