@@ -180,10 +180,10 @@ serve(async (req) => {
 
   if (!resendApiKey) {
     return json({
-      ok: true,
+      ok: false,
       sent: false,
-      reason: 'RESEND_API_KEY is not configured.'
-    })
+      error: 'The message was saved, but email is not configured. RESEND_API_KEY is missing.'
+    }, 500)
   }
 
   const submittedAt = new Intl.DateTimeFormat('en-US', {
@@ -226,10 +226,10 @@ serve(async (req) => {
   if (!emailResponse.ok) {
     console.error('Resend email failed', emailResult)
     return json({
-      ok: true,
+      ok: false,
       sent: false,
-      reason: emailResult?.message ?? 'Resend could not send the email.'
-    })
+      error: `The message was saved, but email could not be sent: ${emailResult?.message ?? 'Resend rejected the request.'}`
+    }, 502)
   }
 
   return json({ ok: true, sent: true, emailId: emailResult.id })

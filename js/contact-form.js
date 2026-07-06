@@ -64,7 +64,7 @@
 
                 const result = await response.json().catch(() => ({}));
                 if (!response.ok || result.ok === false) {
-                    throw new Error(result.error || 'Unable to send your message right now.');
+                    throw new Error(result.error || result.reason || 'Unable to send your message right now.');
                 }
 
                 form.reset();
