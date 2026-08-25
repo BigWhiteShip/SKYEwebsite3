@@ -259,6 +259,20 @@
             return snapshot;
         }
 
+        const LONG_TEXT_FIELDS = new Set(['description', 'photo_alt_text']);
+        const CURRENCY_FIELDS = new Set(['price']);
+        const HIDE_ADDRESS_MAP = { 'true': 'Hidden from public', 'false': 'Visible to public' };
+
+        function formatFieldValue(key, raw) {
+            if (!raw) return '(empty)';
+            if (key === 'price') {
+                const n = parseFloat(String(raw).replace(/[$,\s]/g, ''));
+                return isNaN(n) ? raw : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+            }
+            if (key === 'hide_address') return HIDE_ADDRESS_MAP[raw] || raw;
+            return raw;
+        }
+
         function detectChanges() {
             if (!originalSnapshot) return [];
             const changes = [];
@@ -266,13 +280,22 @@
                 const el = form.elements[key];
                 if (!el) continue;
                 const current = el.type === 'checkbox' ? String(el.checked) : el.value;
-                if (current !== (originalSnapshot[key] ?? '')) changes.push(label);
+                const original = originalSnapshot[key] ?? '';
+                if (current !== original) {
+                    changes.push({ label, key, oldValue: original, newValue: current });
+                }
             }
             const photoDiff = currentPhotos.length - (originalSnapshot._photoCount || 0);
-            if (photoDiff > 0) changes.push(`${photoDiff} photo${photoDiff > 1 ? 's' : ''} added`);
-            else if (photoDiff < 0) changes.push(`${Math.abs(photoDiff)} photo${Math.abs(photoDiff) > 1 ? 's' : ''} removed`);
-            if (selectedPhotoFiles.length > 0) changes.push(`${selectedPhotoFiles.length} new photo${selectedPhotoFiles.length > 1 ? 's' : ''} selected`);
+            if (photoDiff > 0) changes.push({ label: `${photoDiff} photo${photoDiff > 1 ? 's' : ''} added`, key: '_photos' });
+            else if (photoDiff < 0) changes.push({ label: `${Math.abs(photoDiff)} photo${Math.abs(photoDiff) > 1 ? 's' : ''} removed`, key: '_photos' });
+            if (selectedPhotoFiles.length > 0) changes.push({ label: `${selectedPhotoFiles.length} new photo${selectedPhotoFiles.length > 1 ? 's' : ''} selected`, key: '_newPhotos' });
             return changes;
+        }
+
+        function formatChangeLine({ label, key, oldValue, newValue }) {
+            if (!key || key.startsWith('_')) return `• ${label}`;
+            if (LONG_TEXT_FIELDS.has(key)) return `• ${label}: Updated`;
+            return `• ${label}: ${formatFieldValue(key, oldValue)} → ${formatFieldValue(key, newValue)}`;
         }
 
         function updateChangesSummary() {
@@ -284,7 +307,7 @@
             }
             changesSummaryPanel.hidden = false;
             if (!changesSummaryTextarea.dataset.userEdited) {
-                changesSummaryTextarea.value = 'Changes made:\n' + changes.map(c => `- ${c}`).join('\n');
+                changesSummaryTextarea.value = 'Changes submitted for review:\n' + changes.map(formatChangeLine).join('\n');
             }
         }
 
@@ -533,6 +556,9 @@
         });
 
         document.getElementById('submitApproval').addEventListener('click', async () => {
+            // Refresh the summary panel so it reflects any last-second edits
+            updateChangesSummary();
+
             if (requireChangeCheck && detectChanges().length === 0) {
                 noChangesModal.showModal();
                 return;
@@ -544,9 +570,17 @@
             try {
                 const id = await saveCurrentListing('pending_approval');
 
-                const changesSummaryText = changesSummaryTextarea.value.trim();
-                if (changesSummaryText) {
-                    await AdminApp.createApprovalEvent(id, 'agent_note', changesSummaryText);
+                // Build the change record. Prefer the agent-edited textarea; if it is
+                // empty (panel never appeared or was cleared), auto-generate from the
+                // snapshot diff so something always lands in the listing notes.
+                const detectedChanges = detectChanges();
+                const agentEditedSummary = changesSummaryTextarea.value.trim();
+                const changeNote = agentEditedSummary
+                    || (detectedChanges.length > 0
+                        ? 'Changes submitted for review:\n' + detectedChanges.map(formatChangeLine).join('\n')
+                        : '');
+                if (changeNote) {
+                    await AdminApp.createApprovalEvent(id, 'agent_note', changeNote);
                 }
 
                 const agentNoteText = agentNote.value.trim();
@@ -563,6 +597,16 @@
                     agent_name: form.elements.agent_name.value
                 });
 
+                // Refresh notes first so they are already visible when the modal closes
+                await renderBrokerComments(id);
+
+                // Reset change tracking
+                originalSnapshot = captureSnapshot();
+                requireChangeCheck = true;
+                changesSummaryTextarea.value = '';
+                delete changesSummaryTextarea.dataset.userEdited;
+                changesSummaryPanel.hidden = true;
+
                 document.getElementById('successModalBody').textContent =
                     `"${form.elements.title.value}" has been submitted to the principal broker for review.`;
                 document.getElementById('successEmailNote').textContent =
@@ -570,15 +614,6 @@
                         ? `Note: broker notification email could not be sent — ${emailResult.reason || 'email service is not configured yet'}.`
                         : 'The principal broker has been notified by email.';
                 successModal.showModal();
-
-                // Reset change tracking so a follow-up submit would also require changes
-                originalSnapshot = captureSnapshot();
-                requireChangeCheck = true;
-                changesSummaryTextarea.value = '';
-                delete changesSummaryTextarea.dataset.userEdited;
-                changesSummaryPanel.hidden = true;
-
-                await renderBrokerComments(id);
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
             } finally {
