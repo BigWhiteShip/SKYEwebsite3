@@ -8,6 +8,43 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css?v=20260625-phishing-review">
+    <style>
+        dialog {
+            border: none;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            font-family: 'Montserrat', sans-serif;
+            color: #1a1a2e;
+        }
+        dialog::backdrop {
+            background: rgba(26, 26, 46, 0.65);
+        }
+        dialog h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin: 0 0 0.75rem;
+        }
+        dialog p {
+            color: #6c757d;
+            line-height: 1.7;
+            font-size: 0.9rem;
+            margin: 0 0 0.5rem;
+        }
+        dialog .dialog-divider {
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            margin: 1.5rem 0;
+        }
+        dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-shell">
@@ -30,6 +67,14 @@
 
             <div id="message"></div>
             <section id="brokerCommentHistory" class="panel" hidden></section>
+            <section id="changesSummaryPanel" class="panel" hidden>
+                <h2>Changes Made</h2>
+                <p class="help">Auto-generated from your edits. Review and edit this before submitting — the principal broker will see it alongside any notes you add below.</p>
+                <div class="field full">
+                    <label for="changesSummary">Summary of changes</label>
+                    <textarea id="changesSummary" placeholder="Describe what changed in this listing..."></textarea>
+                </div>
+            </section>
             <section id="agentNotesPanel" class="panel">
                 <h2>Notes for Principal Broker</h2>
                 <p class="help">Add internal notes to explain edits or context for this listing. These notes are visible only in the admin tool.</p>
@@ -137,6 +182,25 @@
             </form>
         </main>
     </div>
+    <dialog id="successModal" aria-labelledby="successModalTitle">
+        <h2 id="successModalTitle">Submitted Successfully</h2>
+        <p id="successModalBody"></p>
+        <p id="successEmailNote"></p>
+        <hr class="dialog-divider">
+        <div class="dialog-actions">
+            <button class="btn" id="modalViewReview">View Review Page</button>
+            <button class="btn secondary" id="modalStayHere">Stay on Editor</button>
+        </div>
+    </dialog>
+
+    <dialog id="noChangesModal" aria-labelledby="noChangesModalTitle">
+        <h2 id="noChangesModalTitle">No Changes Detected</h2>
+        <p>No changes to the listing have been detected since the broker sent it back for revisions. Please make at least one change before resubmitting.</p>
+        <div class="dialog-actions">
+            <button class="btn" id="noChangesOk">OK, I'll Make Changes</button>
+        </div>
+    </dialog>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
@@ -149,11 +213,97 @@
         const commentHistory = document.getElementById('brokerCommentHistory');
         const agentNote = document.getElementById('agentNote');
         const addAgentNote = document.getElementById('addAgentNote');
+        const changesSummaryPanel = document.getElementById('changesSummaryPanel');
+        const changesSummaryTextarea = document.getElementById('changesSummary');
+        const successModal = document.getElementById('successModal');
+        const noChangesModal = document.getElementById('noChangesModal');
         message.innerHTML = AdminApp.setupWarning();
         let isLoadingListing = true;
         let currentPhotos = [];
         let selectedPhotoFiles = [];
         let currentListingStatus = 'draft';
+        let originalSnapshot = null;
+        let requireChangeCheck = false;
+        let pendingSubmitId = null;
+
+        const FIELD_LABELS = {
+            title: 'Title',
+            description: 'Description',
+            address: 'Address',
+            city: 'City',
+            state: 'State',
+            zip_code: 'ZIP Code',
+            price: 'Price',
+            mls_number: 'MLS Number',
+            bedrooms: 'Bedrooms',
+            bathrooms: 'Bathrooms',
+            interior_sq_ft: 'Square Footage',
+            lot_size: 'Lot Size',
+            zillow_url: 'Zillow URL',
+            agent_name: 'Agent Name',
+            agent_email: 'Agent Email',
+            agent_office_phone: 'Office Phone',
+            agent_mobile_phone: 'Mobile Phone',
+            photo_alt_text: 'Photo Alt Text',
+            hide_address: 'Address Visibility'
+        };
+
+        function captureSnapshot() {
+            const snapshot = {};
+            for (const key of Object.keys(FIELD_LABELS)) {
+                const el = form.elements[key];
+                if (!el) continue;
+                snapshot[key] = el.type === 'checkbox' ? String(el.checked) : el.value;
+            }
+            snapshot._photoCount = currentPhotos.length;
+            return snapshot;
+        }
+
+        function detectChanges() {
+            if (!originalSnapshot) return [];
+            const changes = [];
+            for (const [key, label] of Object.entries(FIELD_LABELS)) {
+                const el = form.elements[key];
+                if (!el) continue;
+                const current = el.type === 'checkbox' ? String(el.checked) : el.value;
+                if (current !== (originalSnapshot[key] ?? '')) changes.push(label);
+            }
+            const photoDiff = currentPhotos.length - (originalSnapshot._photoCount || 0);
+            if (photoDiff > 0) changes.push(`${photoDiff} photo${photoDiff > 1 ? 's' : ''} added`);
+            else if (photoDiff < 0) changes.push(`${Math.abs(photoDiff)} photo${Math.abs(photoDiff) > 1 ? 's' : ''} removed`);
+            if (selectedPhotoFiles.length > 0) changes.push(`${selectedPhotoFiles.length} new photo${selectedPhotoFiles.length > 1 ? 's' : ''} selected`);
+            return changes;
+        }
+
+        function updateChangesSummary() {
+            if (!originalSnapshot) return;
+            const changes = detectChanges();
+            if (!changes.length) {
+                changesSummaryPanel.hidden = true;
+                return;
+            }
+            changesSummaryPanel.hidden = false;
+            if (!changesSummaryTextarea.dataset.userEdited) {
+                changesSummaryTextarea.value = 'Changes made:\n' + changes.map(c => `- ${c}`).join('\n');
+            }
+        }
+
+        changesSummaryTextarea.addEventListener('input', () => {
+            changesSummaryTextarea.dataset.userEdited = 'true';
+        });
+
+        document.getElementById('modalViewReview').addEventListener('click', () => {
+            successModal.close();
+            if (pendingSubmitId) window.location.href = `review-listing.html?id=${pendingSubmitId}`;
+        });
+
+        document.getElementById('modalStayHere').addEventListener('click', () => {
+            successModal.close();
+        });
+
+        document.getElementById('noChangesOk').addEventListener('click', () => {
+            noChangesModal.close();
+        });
 
         function canSaveListingEdits(status) {
             return ['draft', 'unpublished'].includes(status);
@@ -227,6 +377,7 @@
                     currentPhotos.splice(index, 1);
                     if (currentPhotos.length) await refreshPhotoOrder('Photo deleted.');
                     renderPhotoPreviews();
+                    updateChangesSummary();
                     message.innerHTML = '<div class="message">Photo deleted.</div>';
                     return;
                 }
@@ -275,6 +426,8 @@
                     renderPhotoPreviews();
                     document.querySelector('.admin-header h1').textContent = 'Edit Listing';
                     message.innerHTML = `<div class="message">Editing: ${listing.title}</div>`;
+                    originalSnapshot = captureSnapshot();
+                    requireChangeCheck = currentListingStatus === 'unpublished';
                     await renderBrokerComments(listing.id);
                 }
             } catch (error) {
@@ -334,6 +487,7 @@
         form.addEventListener('input', () => {
             if (isLoadingListing) return;
             if (!canSaveListingEdits(currentListingStatus)) return;
+            updateChangesSummary();
             clearTimeout(autosaveTimer);
             autosaveTimer = setTimeout(async () => {
                 if (!SkyeListings.isConfigured || !form.reportValidity()) return;
@@ -357,6 +511,7 @@
             }
 
             renderPhotoPreviews();
+            updateChangesSummary();
         });
 
         document.getElementById('saveDraft').addEventListener('click', async () => {
@@ -378,27 +533,56 @@
         });
 
         document.getElementById('submitApproval').addEventListener('click', async () => {
+            if (requireChangeCheck && detectChanges().length === 0) {
+                noChangesModal.showModal();
+                return;
+            }
+
+            const submitButton = document.getElementById('submitApproval');
+            submitButton.disabled = true;
+
             try {
                 const id = await saveCurrentListing('pending_approval');
-                const note = agentNote.value.trim();
-                if (note) {
-                    await AdminApp.createApprovalEvent(id, 'agent_note', note);
+
+                const changesSummaryText = changesSummaryTextarea.value.trim();
+                if (changesSummaryText) {
+                    await AdminApp.createApprovalEvent(id, 'agent_note', changesSummaryText);
+                }
+
+                const agentNoteText = agentNote.value.trim();
+                if (agentNoteText) {
+                    await AdminApp.createApprovalEvent(id, 'agent_note', agentNoteText);
                     agentNote.value = '';
                 }
+
                 currentListingStatus = 'pending_approval';
+                pendingSubmitId = id;
 
                 const emailResult = await AdminApp.notifyBrokerOfSubmission(id, {
                     title: form.elements.title.value,
                     agent_name: form.elements.agent_name.value
                 });
 
-                const emailNote = emailResult && emailResult.sent === false
-                    ? ` Broker notification email could not be sent: ${AdminApp.escapeHtml(emailResult.reason || 'email service is not configured yet')}.`
-                    : ' The principal broker has been notified by email.';
+                document.getElementById('successModalBody').textContent =
+                    `"${form.elements.title.value}" has been submitted to the principal broker for review.`;
+                document.getElementById('successEmailNote').textContent =
+                    emailResult && emailResult.sent === false
+                        ? `Note: broker notification email could not be sent — ${emailResult.reason || 'email service is not configured yet'}.`
+                        : 'The principal broker has been notified by email.';
+                successModal.showModal();
 
-                message.innerHTML = `<div class="message">Submitted for principal broker approval.${emailNote} <a href="review-listing.html?id=${id}">View review page &rarr;</a></div>`;
+                // Reset change tracking so a follow-up submit would also require changes
+                originalSnapshot = captureSnapshot();
+                requireChangeCheck = true;
+                changesSummaryTextarea.value = '';
+                delete changesSummaryTextarea.dataset.userEdited;
+                changesSummaryPanel.hidden = true;
+
+                await renderBrokerComments(id);
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
+            } finally {
+                submitButton.disabled = false;
             }
         });
     </script>
