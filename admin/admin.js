@@ -449,7 +449,7 @@ const AdminApp = (() => {
         if (!client || !listingId) return [];
         const { data, error } = await client
             .from('listing_approval_events')
-            .select('id,event_type,notes,created_at,actor_id')
+            .select('id,event_type,notes,created_at,actor_id,actor:actor_id(full_name)')
             .eq('listing_id', listingId)
             .order('created_at', { ascending: false });
 
@@ -531,6 +531,27 @@ const AdminApp = (() => {
         }
     }
 
+    async function notifyBrokerOfSubmission(listingId, listing) {
+        if (!client || !listingId) return { sent: false, reason: 'Missing listing data.' };
+        const reviewUrl = `https://skyegroup.realestate/admin/review-listing.html?id=${listingId}`;
+        try {
+            const { data, error } = await client.functions.invoke('submit-listing-for-approval', {
+                body: {
+                    listingId,
+                    listingTitle: listing.title,
+                    agentName: listing.agent_name,
+                    reviewUrl
+                }
+            });
+            if (error) {
+                return { sent: false, reason: error.message || 'The submit-listing-for-approval Edge Function is not reachable.' };
+            }
+            return data;
+        } catch (error) {
+            return { sent: false, reason: error.message };
+        }
+    }
+
     async function requestEdits(id, listing, comments) {
         const notes = String(comments || '').trim();
         if (!notes) throw new Error('Add comments before sending the listing back for edits.');
@@ -581,6 +602,7 @@ const AdminApp = (() => {
         getListingPhotos,
         getApprovalEvents,
         createApprovalEvent,
+        notifyBrokerOfSubmission,
         requestEdits,
         approveAndPublish,
         savePhotoAltText,

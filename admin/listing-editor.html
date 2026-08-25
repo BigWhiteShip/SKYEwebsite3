@@ -140,7 +140,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/listings-api.js"></script>
-    <script src="admin.js?v=20260625-phishing-review"></script>
+    <script src="admin.js?v=20260824-resubmit-notify"></script>
     <script>
         const form = document.getElementById('listingForm');
         const message = document.getElementById('message');
@@ -333,11 +333,12 @@
         let autosaveTimer;
         form.addEventListener('input', () => {
             if (isLoadingListing) return;
+            if (!canSaveListingEdits(currentListingStatus)) return;
             clearTimeout(autosaveTimer);
             autosaveTimer = setTimeout(async () => {
                 if (!SkyeListings.isConfigured || !form.reportValidity()) return;
                 try {
-                    await saveCurrentListing('draft');
+                    await saveCurrentListing(currentListingStatus === 'unpublished' ? 'unpublished' : 'draft');
                     message.innerHTML = '<div class="message">Draft autosaved.</div>';
                 } catch (error) {
                     message.innerHTML = `<div class="message error">${error.message}</div>`;
@@ -384,8 +385,18 @@
                     await AdminApp.createApprovalEvent(id, 'agent_note', note);
                     agentNote.value = '';
                 }
-                message.innerHTML = '<div class="message">Submitted to principal broker for approval.</div>';
-                window.location.href = `review-listing.html?id=${id}`;
+                currentListingStatus = 'pending_approval';
+
+                const emailResult = await AdminApp.notifyBrokerOfSubmission(id, {
+                    title: form.elements.title.value,
+                    agent_name: form.elements.agent_name.value
+                });
+
+                const emailNote = emailResult && emailResult.sent === false
+                    ? ` Broker notification email could not be sent: ${AdminApp.escapeHtml(emailResult.reason || 'email service is not configured yet')}.`
+                    : ' The principal broker has been notified by email.';
+
+                message.innerHTML = `<div class="message">Submitted for principal broker approval.${emailNote} <a href="review-listing.html?id=${id}">View review page &rarr;</a></div>`;
             } catch (error) {
                 message.innerHTML = `<div class="message error">${error.message}</div>`;
             }
